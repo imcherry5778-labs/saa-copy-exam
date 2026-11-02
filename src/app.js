@@ -147,7 +147,14 @@
     var multi = item.type === 'multiple';
     var html = '<div class="abe-english-row"><button id="exhibit1" class="abe-ExhibitButton rc-fonts-Small Secondary abe-NoDefaultImage" style="color:#fff !important">' +
       '<div class="abe-ImageLabelContainer"><div class="abe-DefaultLabelContainer">English</div></div></button></div>';
-    html += '<div class="abe-stem abe-mat-html' + (item.type === 'ordering' || item.type === 'matching' ? ' abe-stem-ordering' : '') + '">' + textBlock(item.stem.ko) + '</div>';
+    var head = '';
+    if (item.caseStudy) {
+      var group = exam.items.filter(function (x) { return x.caseStudy === item.caseStudy; });
+      head = '<div class="abe-casestudy abe-mat-html"><h1><p style="font-size:16px"><b>사례 연구 - ' + group.length + ' 문항</b></p></h1>' +
+        textBlock(exam.caseStudies[item.caseStudy].scenario.ko) + '</div>' +
+        '<h2><p style="font-size:16px"><b>문항 (' + (group.indexOf(item) + 1) + '/' + group.length + ')</b></p></h2>';
+    }
+    html += '<div class="abe-stem abe-mat-html' + (item.type === 'ordering' || item.type === 'matching' ? ' abe-stem-ordering' : '') + '">' + head + textBlock(item.stem.ko) + '</div>';
     if (item.type === 'ordering') html += orderingBody(item);
     if (item.type === 'matching') html += matchingBody(item);
     if (item.options) html += item.options.map(function (o) { return optionRow(item, o, sel.indexOf(o.id) >= 0, multi); }).join('');

@@ -59,3 +59,9 @@
 - 기준 DOM에 맞추려고 첫 행 위 여백을 없애고 라벨–드롭다운 간격을 `&nbsp;&nbsp; `로 했다. `ko-05-q6`, `ko-05-q7` 픽셀 테스트와 `tests/matching.spec.mjs`의 `[M1-08]` 테스트 2개가 통과했고 회귀 검사(passing)도 통과했다.
 - 남은 문제: 없음. 개별 `playwright test`는 dist를 미리 빌드해야 한다(check.sh는 자동 빌드).
 - 다음 할 일: M1-09(case study 머리말, `ko-05-q8`, `ko-05-q9` 픽셀 일치).
+
+## 2026-11-02 M1-09
+- `src/app.js`의 `itemBody`에 case study 머리말을 추가했다. `caseStudy`가 있는 문항은 `사례 연구 - k 문항`(h1), 시나리오, `문항 (i/k)`(h2)를 문항 본문 위에 표시한다. k와 i는 같은 caseStudy 문항 묶음에서 계산한다.
+- CSS는 바꾸지 않았다. 원본 base.css의 h1/h2 스타일로 `ko-05-q8`, `ko-05-q9` 픽셀 테스트가 바로 일치했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: 없음. features.json steps가 픽셀 비교뿐이라 별도 spec 파일은 만들지 않았다.
+- 다음 할 일: M1-10(English 팝업, `ko-04-q1-english` 픽셀 일치, 닫기 X로 닫힘).
