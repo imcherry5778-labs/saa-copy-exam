@@ -1,0 +1,155 @@
+{
+  "id": "sample",
+  "title": "AWS Certified Solutions Architect - Associate (모의고사 샘플)",
+  "candidate": "수험자",
+  "durationMinutes": 130,
+  "caseStudies": {
+    "cs1": {
+      "scenario": {
+        "ko": "한 미디어 회사가 사용자 업로드 이미지를 처리하는 웹 애플리케이션을 운영한다. 업로드는 하루 중 특정 시간대에 몰리며, 처리 결과는 전 세계 사용자에게 빠르게 제공되어야 한다.",
+        "en": "A media company runs a web application that processes user-uploaded images. Uploads spike at certain times of day, and processed results must be delivered quickly to users worldwide."
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "s1",
+      "type": "single",
+      "domain": 1,
+      "stem": {
+        "ko": "한 회사가 Amazon S3 버킷에 민감한 데이터를 저장한다. 회사는 모든 객체가 저장 시 암호화되도록 강제하고 키 사용 내역을 감사할 수 있어야 한다.\n\n이 요구 사항을 충족하는 가장 적합한 방법은 무엇인가?",
+        "en": "A company stores sensitive data in an Amazon S3 bucket. The company must enforce encryption at rest for all objects and must be able to audit key usage.\n\nWhich solution BEST meets these requirements?"
+      },
+      "options": [
+        { "id": "A", "ko": "SSE-S3로 기본 암호화를 설정한다.", "en": "Configure default encryption with SSE-S3." },
+        { "id": "B", "ko": "AWS KMS 고객 관리형 키로 SSE-KMS 기본 암호화를 설정한다.", "en": "Configure default encryption with SSE-KMS using a customer managed AWS KMS key." },
+        { "id": "C", "ko": "클라이언트 측에서 애플리케이션이 직접 암호화한다.", "en": "Have the application encrypt data on the client side." },
+        { "id": "D", "ko": "S3 버킷 정책으로 HTTPS 요청만 허용한다.", "en": "Use a bucket policy that allows only HTTPS requests." }
+      ],
+      "answer": ["B"],
+      "explanation": {
+        "ko": "SSE-KMS 고객 관리형 키를 쓰면 키 사용이 CloudTrail에 기록되어 감사가 가능하다. SSE-S3는 키 사용 감사가 불가능하고, HTTPS 강제는 전송 중 암호화다.",
+        "en": "SSE-KMS with a customer managed key logs key usage in CloudTrail. SSE-S3 has no key-usage audit, and HTTPS covers encryption in transit only."
+      },
+      "explanationSource": "ai"
+    },
+    {
+      "id": "s2",
+      "type": "multiple",
+      "select": 2,
+      "domain": 2,
+      "stem": {
+        "ko": "한 회사가 단일 가용 영역의 Amazon EC2 인스턴스에서 상태 비저장 웹 애플리케이션을 실행한다. 회사는 가용 영역 장애에도 서비스가 유지되도록 하려고 한다.\n\n이 요구 사항을 충족하는 작업 조합은 무엇인가? (2개 선택.)",
+        "en": "A company runs a stateless web application on Amazon EC2 instances in a single Availability Zone. The company wants the application to remain available during an Availability Zone failure.\n\nWhich combination of actions will meet this requirement? (Select TWO.)"
+      },
+      "options": [
+        { "id": "A", "ko": "여러 가용 영역에 걸친 Auto Scaling 그룹을 구성한다.", "en": "Configure an Auto Scaling group that spans multiple Availability Zones." },
+        { "id": "B", "ko": "인스턴스 유형을 더 큰 유형으로 변경한다.", "en": "Change to a larger instance type." },
+        { "id": "C", "ko": "Application Load Balancer를 인스턴스 앞에 배치한다.", "en": "Place an Application Load Balancer in front of the instances." },
+        { "id": "D", "ko": "EBS 볼륨의 스냅샷을 매시간 생성한다.", "en": "Create hourly snapshots of the EBS volumes." },
+        { "id": "E", "ko": "전용 호스트로 인스턴스를 이전한다.", "en": "Move the instances to Dedicated Hosts." }
+      ],
+      "answer": ["A", "C"],
+      "explanation": {
+        "ko": "다중 AZ Auto Scaling 그룹이 인스턴스를 여러 AZ에 유지하고, ALB가 정상 AZ로 트래픽을 분산한다.",
+        "en": "A multi-AZ Auto Scaling group keeps capacity in several AZs, and the ALB routes traffic to healthy AZs."
+      },
+      "explanationSource": "ai"
+    },
+    {
+      "id": "s3",
+      "type": "ordering",
+      "domain": 2,
+      "stem": {
+        "ko": "한 회사가 온프레미스 MySQL 데이터베이스를 최소한의 다운타임으로 Amazon RDS for MySQL로 마이그레이션하려고 한다.\n\n다음 목록에서 올바른 단계를 선택하고 순서를 지정합니다. 각 단계는 한 번만 선택하거나 아예 선택하지 않아야 합니다. (3개 순서대로 선택.)",
+        "en": "A company wants to migrate an on-premises MySQL database to Amazon RDS for MySQL with minimal downtime.\n\nSelect and order the correct steps from the following list. Each step should be selected one time or not at all. (Select and order THREE.)"
+      },
+      "choices": [
+        { "id": "c1", "ko": "대상 RDS 인스턴스를 생성한다.", "en": "Create the target RDS instance." },
+        { "id": "c2", "ko": "AWS DMS 전체 로드 및 CDC 작업을 실행한다.", "en": "Run an AWS DMS full load and CDC task." },
+        { "id": "c3", "ko": "애플리케이션 연결을 RDS 엔드포인트로 전환한다.", "en": "Cut over application connections to the RDS endpoint." },
+        { "id": "c4", "ko": "온프레미스 데이터베이스를 먼저 중지한다.", "en": "Stop the on-premises database first." }
+      ],
+      "slots": [
+        { "label": { "ko": "단계 1", "en": "Step 1:" }, "side": "left" },
+        { "label": { "ko": "단계 2", "en": "Step 2:" }, "side": "left" },
+        { "label": { "ko": "단계 3", "en": "Step 3:" }, "side": "left" }
+      ],
+      "answer": ["c1", "c2", "c3"],
+      "explanation": {
+        "ko": "대상 생성 → DMS 전체 로드+CDC로 동기화 → 전환 순서여야 다운타임이 최소화된다. 원본을 먼저 중지하면 다운타임이 길어진다.",
+        "en": "Create the target, sync with DMS full load plus CDC, then cut over. Stopping the source first causes long downtime."
+      },
+      "explanationSource": "ai"
+    },
+    {
+      "id": "s4",
+      "type": "matching",
+      "domain": 4,
+      "stem": {
+        "ko": "다음 목록에서 각 워크로드에 가장 비용 효율적인 Amazon EC2 구매 옵션을 선택합니다. 각 옵션을 한 번 혹은 그 이상 선택해야 합니다. (3개 선택.)",
+        "en": "Select the most cost-effective Amazon EC2 purchasing option from the following list for each workload. Each option should be selected one or more times. (Select THREE.)"
+      },
+      "choices": [
+        { "id": "c1", "ko": "스팟 인스턴스", "en": "Spot Instances" },
+        { "id": "c2", "ko": "Savings Plans", "en": "Savings Plans" }
+      ],
+      "prompts": [
+        { "id": "p1", "ko": "중단되어도 다시 시작할 수 있는 배치 이미지 렌더링", "en": "Interruptible batch image rendering" },
+        { "id": "p2", "ko": "3년간 24시간 실행되는 프로덕션 웹 서버", "en": "Production web servers running 24/7 for 3 years" },
+        { "id": "p3", "ko": "체크포인트를 지원하는 대규모 데이터 분석 작업", "en": "Large data analysis jobs that support checkpointing" }
+      ],
+      "answer": { "p1": "c1", "p2": "c2", "p3": "c1" },
+      "explanation": {
+        "ko": "중단을 견딜 수 있는 작업은 스팟, 장기간 꾸준한 사용량은 Savings Plans가 가장 저렴하다.",
+        "en": "Interruption-tolerant work suits Spot; steady long-term usage suits Savings Plans."
+      },
+      "explanationSource": "ai"
+    },
+    {
+      "id": "s5",
+      "type": "single",
+      "domain": 3,
+      "caseStudy": "cs1",
+      "stem": {
+        "ko": "업로드 급증 시에도 이미지 처리 요청이 유실되지 않도록 하려면 어떻게 해야 하는가?",
+        "en": "How can the company ensure that image processing requests are not lost during upload spikes?"
+      },
+      "options": [
+        { "id": "A", "ko": "업로드 이벤트를 Amazon SQS 대기열에 넣고 워커가 처리한다.", "en": "Send upload events to an Amazon SQS queue that workers consume." },
+        { "id": "B", "ko": "EC2 인스턴스 크기를 최대로 늘린다.", "en": "Scale the EC2 instances up to the largest size." },
+        { "id": "C", "ko": "요청을 Amazon ElastiCache에 저장한다.", "en": "Store the requests in Amazon ElastiCache." },
+        { "id": "D", "ko": "Route 53 가중치 기반 라우팅을 사용한다.", "en": "Use Route 53 weighted routing." }
+      ],
+      "answer": ["A"],
+      "explanation": {
+        "ko": "SQS는 요청을 내구성 있게 버퍼링해 처리 계층과 분리하므로 급증 시에도 유실이 없다.",
+        "en": "SQS durably buffers requests and decouples the processing tier, so nothing is lost during spikes."
+      },
+      "explanationSource": "ai"
+    },
+    {
+      "id": "s6",
+      "type": "single",
+      "domain": 3,
+      "caseStudy": "cs1",
+      "stem": {
+        "ko": "처리된 이미지를 전 세계 사용자에게 지연 시간이 짧게 제공하려면 어떻게 해야 하는가?",
+        "en": "How can the company deliver processed images to users worldwide with low latency?"
+      },
+      "options": [
+        { "id": "A", "ko": "S3 버킷을 여러 리전에 복제하고 사용자가 직접 선택하게 한다.", "en": "Replicate the S3 bucket to several Regions and let users choose one." },
+        { "id": "B", "ko": "S3를 오리진으로 하는 Amazon CloudFront 배포를 사용한다.", "en": "Use an Amazon CloudFront distribution with S3 as the origin." },
+        { "id": "C", "ko": "S3 Transfer Acceleration을 다운로드에 사용한다.", "en": "Use S3 Transfer Acceleration for downloads." },
+        { "id": "D", "ko": "더 큰 EC2 인스턴스에서 이미지를 제공한다.", "en": "Serve images from larger EC2 instances." }
+      ],
+      "answer": ["B"],
+      "explanation": {
+        "ko": "CloudFront는 엣지 로케이션에 콘텐츠를 캐시해 전 세계 사용자에게 지연 시간이 짧게 전달한다.",
+        "en": "CloudFront caches content at edge locations for low-latency global delivery."
+      },
+      "explanationSource": "ai",
+      "disputed": true
+    }
+  ]
+}

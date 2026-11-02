@@ -1,0 +1,10 @@
+node_modules/
+# Pearson demo captures and dump-derived data stay local
+capture/
+exams/*.json
+!exams/sample.json
+dist/
+.tmp/
+vendor/
+test-results/
+playwright-report/
