@@ -125,18 +125,19 @@
     var min = Math.floor(left / 60), sec = left % 60;
     var timerName = label('Timing.Property.HideTimer.value') + ' 남은 시간 ' + min + ' 분, ' + sec + ' 초';
     var counter = '문제 ' + (state.index + 1) + ' / ' + total;
-    var timerHtml = (state.mode === 'study' || state.phase === 'start' || state.phase === 'result') ? '' :
+    var timerHtml = (state.mode === 'study' || state.phase === 'start' || state.phase === 'result' || state.phase === 'answerReview') ? '' :
       '<div id="abe-timer" role="timer"><button id="abe-TimeRemainingSectionButton" role="button">' +
       '<span id="abe-timerPlaceholder"></span><span id="accessibleTimerText" class="sr-only">' + esc(timerName) + '</span>' +
       '<div id="abe-timerContents" class="rc-fonts-Message' + (state.timerHidden ? ' off' : '') + '" aria-hidden="true">' +
       '<span id="abe-timerLabel">' + esc(timerText.replace(mmss(left), '')) + '</span><span id="timeRemaining">' + mmss(left) + '</span></div></button></div>';
+    var showCounter = state.phase === 'item' || (state.phase === 'answerReview' && state.fromReview);
     return '<div id="abe-titlebar" class="Primary" role="region" aria-labelledby="Title_bar">' +
       '<span id="Title_bar" style="display:none">Title bar</span>' +
       '<div id="abe-application-logo"><span class="abe-ApplicationLogoImage"></span></div>' +
       '<div id="abe-titlebar-title" class="rc-fonts-Large" tabindex="-1"><span id="abe-assessment-title">' + esc(exam.title) +
       '</span>\n - <span id="abe-assessment-candidate">' + esc(exam.candidate) + '</span></div>' +
       '<div id="abe-titlebar-info">' + timerHtml +
-      '<div id="abe-itemCounter" role="heading" aria-level="1"' + (state.phase !== 'item' ? ' style="display:none"' : '') + '><button id="abe-ItemOrdinalKnownButton" role="button" aria-label="' +
+      '<div id="abe-itemCounter" role="heading" aria-level="1"' + (!showCounter ? ' style="display:none"' : '') + '><button id="abe-ItemOrdinalKnownButton" role="button" aria-label="' +
       esc(label('UserInterface.ContextHelp.Property.ItemOrdinalHide.value') + ' ' + counter) + '"><div class="abe-hidden-shim"></div>' +
       '<div id="abe-itemCounterWrapper" class="' + (state.counterHidden ? 'off' : '') + '" aria-hidden="true"><span id="abe-ItemOrdinalKnown" class="rc-fonts-Message">문제 <span id="itemOrdinal">' +
       (state.index + 1) + '</span> / <span id="itemCardinal">' + total + '</span></span></div></button></div></div></div>';
@@ -162,7 +163,7 @@
         '<div id="abe-toolbar-tools"></div>' +
         '<div id="abe-toolbar-flags">' + colorSchemes() + '</div></div>';
     }
-    if (state.phase === 'review') {
+    if (state.phase === 'review' || (state.phase === 'answerReview' && !state.fromReview)) {
       return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
         '<span id="Tool_bar" style="display:none">Tool bar</span>' +
         '<div id="abe-toolbar-tools"><div class="abe-icon-left" style="padding-left:5px">' +
@@ -172,12 +173,15 @@
     }
     var item = exam.items[state.index];
     var flagged = !!state.flags[item.id];
-    var checkBtn = state.mode === 'study' ?
+    var solBtn = state.phase === 'answerReview' ?
+      '<div class="abe-icon-left" style="padding-left:5px"><button id="abe-SolutionButton" class="rc-fonts-Small" data-accesskey="X" accesskey="X">' +
+      keyLabel('해설 (X)') + '</button></div>' : '';
+    var checkBtn = (state.mode === 'study' && state.phase === 'item') ?
       '<div class="abe-icon-left" style="padding-left:5px"><button id="abe-checkAnswerButton" class="rc-fonts-Small" data-accesskey="K" accesskey="K"' +
       (isComplete(item) ? '' : ' disabled') + '>' + keyLabel(label('UserInterface.Buttons.Button.CheckCorrect.label')) + '</button></div>' : '';
     return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
       '<span id="Tool_bar" style="display:none">Tool bar</span>' +
-      '<div id="abe-toolbar-tools"><div class="abe-icon-left" style="padding-left:5px">' + button('abe-CommentButton', 'Comment', 'M') + '</div></div>' +
+      '<div id="abe-toolbar-tools"><div class="abe-icon-left" style="padding-left:5px">' + button('abe-CommentButton', 'Comment', 'M') + '</div>' + solBtn + '</div>' +
       '<div id="abe-toolbar-flags">' + checkBtn + '<div class="abe-icon-left" style="padding-left:5px">' +
       button('abe-FlagForReviewItemButton', 'FlagForReviewItem', 'F', { cls: flagged ? ' abe-FlagForReviewItemButtonSelected' : ' abe-FlagForReviewItemButtonUnselected' }) +
       '</div>' + colorSchemes() + '</div></div>';
@@ -196,6 +200,11 @@
         keyLabel(label('UserInterface.Buttons.Button.EndReview.label')) + '</button></div></div>' +
         '<div id="abe-navigation-jump"></div></div>';
     }
+    if (state.phase === 'answerReview' && !state.fromReview) {
+      return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' +
+        '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-ResultScreenButton" class="rc-fonts-Normal">결과 화면</button></div></div>' +
+        '<div id="abe-navigation-jump"></div></div>';
+    }
     if (state.phase === 'result') {
       return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' +
         '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-AnswerReviewButton" class="rc-fonts-Normal" data-accesskey="I" accesskey="I">' +
@@ -205,6 +214,8 @@
         '<div class="abe-inline-button-right" style="padding-left:5px"><button id="abe-HomeButton" class="rc-fonts-Normal">처음으로</button></div>' +
         '</div></div>';
     }
+    var resBtn = state.phase === 'answerReview' ?
+      '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-ResultScreenButton" class="rc-fonts-Normal">결과 화면</button></div>' : '';
     var rev = state.fromReview ?
       '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-ReviewScreenButton" class="rc-fonts-Normal" data-accesskey="S" accesskey="S">' +
       keyLabel(label('UserInterface.Buttons.Button.ReviewScreen.label')) + '</button></div>' : '';
@@ -214,7 +225,7 @@
       keyLabel(label('UserInterface.Buttons.Button.Previous.label')) + '</button></div>' : '';
     var next = '<div class="abe-inline-button-right abe-icon-right"><button id="abe-NextButton" class="rc-fonts-Normal" data-accesskey="N" accesskey="N">' +
       keyLabel(label('UserInterface.Buttons.Button.Next.label')) + '</button></div>';
-    return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' + rev + '</div>' +
+    return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' + resBtn + rev + '</div>' +
       '<div id="abe-navigation-jump"' + (prev ? ' class="abe-has-prev"' : '') + '>' + prev + next + '</div></div>';
   }
 
@@ -472,14 +483,15 @@
   }
 
   function reviewTable(sec, entries, visible) {
+    var isPost = state.phase === 'answerReview';
     var qH = label('UserInterface.ReviewScreen2.0.Property.QuestionHeader2.0.value');
     var tH = label('UserInterface.ReviewScreen2.0.Property.TitleHeader2.0.value');
     var sH = label('UserInterface.ReviewScreen2.0.Property.StatusHeader2.0.value');
     var fH = label('UserInterface.ReviewScreen2.0.Property.FlaggedHeader2.0.value');
     var rH = label('UserInterface.ReviewScreen2.0.AccessibleDescription.Property.ReviewButtons2.0.value');
     var qTitle = label('UserInterface.ReviewScreen.Property.DefaultQuestionTitle.value');
-    var compL = label('UserInterface.ReviewScreen2.0.Property.CompleteStatusLabel2.0.value');
-    var incL = label('UserInterface.ReviewScreen.CompleteStatuses.Property.IncompleteLabel.value');
+    var compL = label(isPost ? 'UserInterface.ReviewScreen2.0.Property.CorrectStatusLabel2.0.value' : 'UserInterface.ReviewScreen2.0.Property.CompleteStatusLabel2.0.value');
+    var incL = label(isPost ? 'UserInterface.ReviewScreen.CorrectStatuses.Property.IncorrectLabel.value' : 'UserInterface.ReviewScreen.CompleteStatuses.Property.IncompleteLabel.value');
     var yesL = label('UserInterface.ReviewScreen2.0.Property.ReviewFlagYes2.0.value');
     var noL = label('UserInterface.ReviewScreen2.0.Property.ReviewFlagNo2.0.value');
     var revL = label('UserInterface.ReviewScreen2.0.Property.ReviewButton2.0.value');
@@ -489,8 +501,10 @@
       '<td class="abe-reviewTdClass">&nbsp;</td><td class="abe-reviewTdClass">&nbsp;</td><td class="abe-reviewTdClass">&nbsp;</td><td class="abe-reviewTdClass">&nbsp;</td></tr>' :
       entries.map(function (e, idx) {
         var last = idx === entries.length - 1;
-        var done = isComplete(e.item), flg = !!state.flags[e.item.id];
-        var stCls = done ? 'abe-reviewComplete abe-reviewCompleteLabel' : 'abe-reviewIncomplete abe-reviewIncompleteLabel';
+        var done = isPost ? isCorrect(e.item) : isComplete(e.item), flg = !!state.flags[e.item.id];
+        var stCls = isPost ?
+          (done ? 'abe-reviewCorrect abe-reviewCorrectLabel abe-reviewComplete abe-reviewCompleteLabel' : 'abe-reviewIncorrect abe-reviewIncorrectLabel abe-reviewIncomplete abe-reviewIncompleteLabel') :
+          (done ? 'abe-reviewComplete abe-reviewCompleteLabel' : 'abe-reviewIncomplete abe-reviewIncompleteLabel');
         var stTxt = done ? compL : incL;
         var flgTd = flg ?
           '<td class="abe-reviewTdClass abe-reviewTdClassFlagged" data-cell="' + esc(fH) + '"><div class="abe-FlagForReviewMain">' +
@@ -517,35 +531,39 @@
   }
 
   function reviewBody() {
+    var isPost = state.phase === 'answerReview';
+    var midSec = isPost ? 'Incorrect' : 'Incomplete';
     var title = label('UserInterface.ReviewScreen2.0.Property.ReviewTitle2.0.value');
     var revAll = label('UserInterface.Buttons.Button.ReviewAll.label');
-    var revInc = label('UserInterface.Buttons.Button.ReviewIncomplete.label');
+    var revMid = label(isPost ? 'UserInterface.Buttons.Button.ReviewIncorrect.label' : 'UserInterface.Buttons.Button.ReviewIncomplete.label');
     var revFlg = label('UserInterface.Buttons.Button.ReviewFlagged.label');
     var allL = label('UserInterface.ReviewScreen2.0.Property.AllTab2.0.value');
-    var incL = label('UserInterface.ReviewScreen2.0.Property.IncompleteTab2.0.value');
+    var midL = label(isPost ? 'UserInterface.ReviewScreen2.0.Property.IncorrectTab2.0.value' : 'UserInterface.ReviewScreen2.0.Property.IncompleteTab2.0.value');
     var flgL = label('UserInterface.ReviewScreen2.0.Property.FlaggedTab2.0.value');
-    var incTip = label('UserInterface.ReviewScreen.Property.ReviewScreenToolTipIncomplete2.0.value');
+    var midTip = label(isPost ? 'UserInterface.ReviewScreen.Property.ReviewScreenToolTipIncorrect2.0.value' : 'UserInterface.ReviewScreen.Property.ReviewScreenToolTipIncomplete2.0.value');
     var flgTip = label('UserInterface.ReviewScreen.Property.ReviewScreenToolTipFlagged2.0.value');
     var allEntries = exam.items.map(function (it, i) { return { item: it, num: i + 1 }; });
-    var incEntries = allEntries.filter(function (e) { return !isComplete(e.item); });
+    var midEntries = allEntries.filter(function (e) { return isPost ? !isCorrect(e.item) : !isComplete(e.item); });
     var flgEntries = allEntries.filter(function (e) { return !!state.flags[e.item.id]; });
     var tab = state.reviewTab || 'All';
     if (tab === 'Flagged' && flgEntries.length === 0) tab = 'All';
+    if (isPost && tab === 'Incomplete') tab = 'Incorrect';
+    if (!isPost && tab === 'Incorrect') tab = 'Incomplete';
     var hideFlg = flgEntries.length === 0 ? ' style="display: none;"' : '';
     return '<div class="abe-reviewScreen-2-0" tabindex="-1"><div class="abe-reviewScreenHeader">' +
       '<div class="abe-reviewTypeTitle-2-0 rc-fonts-Normal"><h3 class="abe-reviewHeading"> ' + esc(title) + ' </h3></div>' +
       '<div id="abe-ReviewAllButtonContainer" class="abe-ReviewButtonContainer"' + (tab === 'All' ? '' : ' style="display: none;"') + '><button id="abe-ReviewAllButton" class="abe-reviewBtn rc-fonts-Normal" data-accesskey="A" accesskey="A" style="display: inline-block;">' + keyLabel(revAll) + '</button></div>' +
-      '<div id="abe-ReviewIncompleteButtonContainer" class="abe-ReviewButtonContainer"' + (tab === 'Incomplete' ? '' : ' style="display: none;"') + '><button id="abe-ReviewIncompleteButton" class="abe-reviewBtn rc-fonts-Normal" accesskey="I" data-accesskey="I" style="display: inline-block;">' + keyLabel(revInc) + '</button></div>' +
+      '<div id="abe-Review' + midSec + 'ButtonContainer" class="abe-ReviewButtonContainer"' + (tab === midSec ? '' : ' style="display: none;"') + '><button id="abe-Review' + midSec + 'Button" class="abe-reviewBtn rc-fonts-Normal" accesskey="I" data-accesskey="I" style="display: inline-block;">' + keyLabel(revMid) + '</button></div>' +
       '<div id="abe-ReviewFlaggedButtonContainer" class="abe-ReviewButtonContainer"' + (tab === 'Flagged' ? '' : ' style="display: none;"') + '><button id="abe-ReviewFlaggedButton" class="abe-reviewBtn rc-fonts-Normal" accesskey="V" data-accesskey="V" style="display: inline-block;">' + keyLabel(revFlg) + '</button></div>' +
-      '</div><div id="reviewType" style="display: none"> prescore </div>' +
+      '</div><div id="reviewType" style="display: none"> ' + (isPost ? 'postscore' : 'prescore') + ' </div>' +
       '<div class="abe-scrollableReviewContent abe-reviewScreenTab" id="scrollableReviewContent" style="overflow: clip auto; height: unset;"><div class="abe-multipleSections abe-tabbedMultipleSection">' +
       '<div class="abe-reviewScreenSectionTitles"><div class="abe-reviewSectionTitles abe-reviewScreenTitleFonts">' +
       '<div id="tabAll" class="titleTab"><button id="All" class="abe-reviewSectionTitle ui-button' + (tab === 'All' ? ' abe-sectionTitleSelected' : '') + '" value="' + esc(allL) + '" role="tab" aria-selected="' + (tab === 'All') + '"> ' + esc(allL) + ' <div class="abe-reviewTabCount"> ( </div><div id="AllCount">' + allEntries.length + '</div><div> ) </div></button></div>' +
-      '<div id="tabIncomplete" class="titleTab"><span class="abe-reviewScreenToolTip" id="abe-reviewScreenToolTipIncomplete" tabindex="-1"> ' + esc(incTip) + ' </span><button id="Incomplete" class="abe-reviewSectionTitle ui-button' + (tab === 'Incomplete' ? ' abe-sectionTitleSelected' : '') + '" aria-describedby="abe-reviewScreenToolTipIncomplete" value="' + esc(incL) + '" role="tab" aria-selected="' + (tab === 'Incomplete') + '"> ' + esc(incL) + ' <div class="abe-reviewTabCount"> ( </div><div id="IncompleteCount">' + incEntries.length + '</div><div> ) </div><div id="IncompleteTooltip" class="abe-reviewScreenToolTipIcon"></div></button></div>' +
+      '<div id="tab' + midSec + '" class="titleTab"><span class="abe-reviewScreenToolTip" id="abe-reviewScreenToolTip' + midSec + '" tabindex="-1"> ' + esc(midTip) + ' </span><button id="' + midSec + '" class="abe-reviewSectionTitle ui-button' + (tab === midSec ? ' abe-sectionTitleSelected' : '') + '" aria-describedby="abe-reviewScreenToolTip' + midSec + '" value="' + esc(midL) + '" role="tab" aria-selected="' + (tab === midSec) + '"> ' + esc(midL) + ' <div class="abe-reviewTabCount"> ( </div><div id="' + midSec + 'Count">' + midEntries.length + '</div><div> ) </div><div id="' + midSec + 'Tooltip" class="abe-reviewScreenToolTipIcon"></div></button></div>' +
       '<div id="tabFlagged" class="titleTab"' + hideFlg + '><span class="abe-reviewScreenToolTip" id="abe-reviewScreenToolTipFlagged" tabindex="-1"> ' + esc(flgTip) + ' </span><button id="Flagged" class="abe-reviewSectionTitle ui-button' + (tab === 'Flagged' ? ' abe-sectionTitleSelected' : '') + '" aria-describedby="abe-reviewScreenToolTipFlagged" value="' + esc(flgL) + '" role="tab" aria-selected="' + (tab === 'Flagged') + '"' + hideFlg + '> ' + esc(flgL) + ' <div class="abe-reviewTabCount"> ( </div><div id="FlaggedCount">' + flgEntries.length + '</div><div> ) </div><div id="FlaggedTooltip" class="abe-reviewScreenToolTipIcon"></div></button></div>' +
       '</div></div>' +
       reviewTable('All', allEntries, tab === 'All') +
-      reviewTable('Incomplete', incEntries, tab === 'Incomplete') +
+      reviewTable(midSec, midEntries, tab === midSec) +
       reviewTable('Flagged', flgEntries, tab === 'Flagged') +
       '</div></div></div>';
   }
@@ -643,7 +661,7 @@
       if (rMsgP) rMsgP.innerHTML = rMsgP.getAttribute('data-msg-html');
       return;
     }
-    if (state.phase === 'review') {
+    if (state.phase === 'review' || (state.phase === 'answerReview' && !state.fromReview)) {
       app.innerHTML = titleBar(item) + toolBar() +
         '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main" style="background-color: rgb(242, 243, 245);"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
         reviewBody() + '</div></div>' + navBar() + (state.instructionsOpen ? instructionsDialog() : '') + (state.endReviewStep ? endReviewDialog() : '');
@@ -670,7 +688,7 @@
     state.index = Math.max(0, Math.min(exam.items.length - 1, i));
     state.english = false;
     state.commentOpen = false;
-    state.explanationOpen = false;
+    state.explanationOpen = state.phase === 'answerReview' && state.fromReview;
     state.explanationEn = false;
     render();
   }
@@ -791,8 +809,33 @@
       return;
     }
     if (t.id === 'No' && state.endReviewStep) { state.endReviewStep = 0; render(); return; }
+    if (t.id === 'abe-AnswerReviewButton') {
+      state.phase = 'answerReview';
+      state.fromReview = false;
+      state.reviewTab = 'All';
+      state.reviewList = null;
+      state.english = false;
+      state.commentOpen = false;
+      state.explanationOpen = false;
+      state.explanationEn = false;
+      state.instructionsOpen = false;
+      render();
+      return;
+    }
+    if (t.id === 'abe-ResultScreenButton') {
+      state.phase = 'result';
+      state.fromReview = false;
+      state.reviewList = null;
+      state.english = false;
+      state.commentOpen = false;
+      state.explanationOpen = false;
+      state.explanationEn = false;
+      state.instructionsOpen = false;
+      render();
+      return;
+    }
     if (t.classList.contains('abe-reviewItemBtn')) {
-      state.phase = 'item';
+      if (state.phase !== 'answerReview') state.phase = 'item';
       state.fromReview = true;
       state.reviewList = null;
       state.instructionsOpen = false;
@@ -800,21 +843,22 @@
       return;
     }
     if (t.id === 'abe-ReviewAllButton') {
-      state.phase = 'item';
+      if (state.phase !== 'answerReview') state.phase = 'item';
       state.fromReview = true;
       state.reviewList = null;
       state.instructionsOpen = false;
       go(0);
       return;
     }
-    if (t.id === 'abe-ReviewIncompleteButton' || t.id === 'abe-ReviewFlaggedButton') {
+    if (t.id === 'abe-ReviewIncompleteButton' || t.id === 'abe-ReviewIncorrectButton' || t.id === 'abe-ReviewFlaggedButton') {
       var isInc = t.id === 'abe-ReviewIncompleteButton';
+      var isWrng = t.id === 'abe-ReviewIncorrectButton';
       var list = [];
       exam.items.forEach(function (it, idx) {
-        if (isInc ? !isComplete(it) : !!state.flags[it.id]) list.push(idx);
+        if (isInc ? !isComplete(it) : (isWrng ? !isCorrect(it) : !!state.flags[it.id])) list.push(idx);
       });
       if (list.length > 0) {
-        state.phase = 'item';
+        if (state.phase !== 'answerReview') state.phase = 'item';
         state.fromReview = true;
         state.reviewList = list;
         state.instructionsOpen = false;
@@ -823,7 +867,7 @@
       return;
     }
     if (t.id === 'abe-ReviewScreenButton') {
-      state.phase = 'review';
+      if (state.phase !== 'answerReview') state.phase = 'review';
       state.reviewTab = 'All';
       state.fromReview = false;
       state.reviewList = null;
@@ -832,6 +876,12 @@
       state.explanationOpen = false;
       state.explanationEn = false;
       state.instructionsOpen = false;
+      render();
+      return;
+    }
+    if (t.id === 'abe-SolutionButton') {
+      state.explanationOpen = true;
+      state.explanationEn = false;
       render();
       return;
     }
@@ -875,7 +925,7 @@
         go(state.index + 1);
         return;
       }
-      state.phase = 'review';
+      if (state.phase !== 'answerReview') state.phase = 'review';
       state.reviewTab = 'All';
       state.fromReview = false;
       state.reviewList = null;
@@ -958,6 +1008,9 @@
         state.endReviewStep = 0;
         state.resumeSaved = null;
         for (var k in s) state[k] = s[k];
+        if (state.phase === 'answerReview' && state.fromReview && s.explanationOpen === undefined) {
+          state.explanationOpen = true;
+        }
         if (state.phase === 'start') clearSavedState();
         render();
       },

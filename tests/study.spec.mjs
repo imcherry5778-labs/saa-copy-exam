@@ -336,3 +336,173 @@ test('[M3-02] 해설 창에서 AI 해설·정답 논란 배지와 English 해설
   await dialog.locator('#abe-exp-close').click();
   await expect(dialog).toHaveCount(0);
 });
+
+test('[M3-03] 오답 해설(채점 후 검토) 화면에서 모두·잘못된·지정된 플래그 탭과 정답/잘못된 상태 알약이 동작한다', async ({ page }) => {
+  await page.goto(URL);
+  // q1(정답 D), q2(정답 A,B), q3(오답 A 선택), 나머지 미응답 -> 정답 2개, 잘못된 7개, 플래그 2개(q1, q3)
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'exam',
+      phase: 'answerReview',
+      answers: {
+        q1: ['D'],
+        q2: ['A', 'B'],
+        q3: ['A'],
+      },
+      flags: { q1: true, q3: true },
+      comments: {},
+      checked: {},
+    });
+  });
+
+  const allTab = page.getByRole('tab', { name: /모두/ });
+  const incTab = page.getByRole('tab', { name: /잘못된/ });
+  const flgTab = page.getByRole('tab', { name: /지정된 플래그/ });
+
+  await expect(allTab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#AllCount')).toHaveText('9');
+  await expect(page.locator('#IncorrectCount')).toHaveText('7');
+  await expect(page.locator('#FlaggedCount')).toHaveText('2');
+  await expect(page.getByRole('button', { name: '모두 검토 (A)' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '결과 화면' })).toBeVisible();
+
+  // 상태 알약: q1·q2는 '정답' 초록, q3~q9는 '잘못된' 빨강
+  const allRows = page.locator('#AllTbodyContent tr');
+  await expect(allRows).toHaveCount(9);
+  for (let i = 0; i < 9; i++) {
+    const status = allRows.nth(i).locator('.abe-reviewItemStatus');
+    if (i === 0 || i === 1) {
+      await expect(status).toHaveText(/^\s*정답\s*$/);
+      await expect(status).toHaveClass(/abe-reviewCompleteLabel/);
+    } else {
+      await expect(status).toHaveText(/^\s*잘못된\s*$/);
+      await expect(status).toHaveClass(/abe-reviewIncompleteLabel/);
+    }
+  }
+
+  // '잘못된 ( 7 )' 탭 클릭 -> 틀린 7문항만 표시, 상단 버튼은 '틀린 질문 검토 (I)'
+  await incTab.click();
+  await expect(incTab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('button', { name: '틀린 질문 검토 (I)' })).toBeVisible();
+  await expect(page.locator('#abe-reviewTable-Incorrect')).toBeVisible();
+  await expect(page.locator('#abe-reviewTable-All')).toBeHidden();
+  await expect(page.locator('#IncorrectTbodyContent tr')).toHaveCount(7);
+
+  // '지정된 플래그 ( 2 )' 탭 클릭 -> 플래그 지정된 2문항만 표시
+  await flgTab.click();
+  await expect(flgTab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('button', { name: '플래그가 지정된 부분 검토 (V)' })).toBeVisible();
+  await expect(page.locator('#abe-reviewTable-Flagged')).toBeVisible();
+  await expect(page.locator('#FlaggedTbodyContent tr')).toHaveCount(2);
+
+  // 플래그가 0개면 지정된 플래그 탭을 숨긴다
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'exam',
+      phase: 'answerReview',
+      answers: { q1: ['D'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await expect(page.getByRole('tab', { name: /지정된 플래그/ })).toHaveCount(0);
+  await expect(page.locator('#tabFlagged')).toBeHidden();
+});
+
+test('[M3-03] 오답 해설에서 검토 진입 시 문항이 읽기 전용으로 열리고 해설 창이 자동으로 열리며 해설 (X) 및 하단 탐색이 동작한다', async ({ page }) => {
+  await page.goto(URL);
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'exam',
+      phase: 'answerReview',
+      answers: {
+        q1: ['A'], // 오답 선택 유지 확인용
+        q2: ['A', 'B'], // 정답 선택 유지 확인용
+        q4: ['c1', 'c2', 'c5'], // ordering 선택 유지 확인용
+      },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+
+  // 1) 1번 문항의 '검토' 클릭 -> 문항 화면이 읽기 전용으로 열리고 해설 창이 자동으로 열린다
+  await page.getByRole('button', { name: /Review Question 1/ }).click();
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 1 / 9');
+
+  const expDialog = page.locator('#abe-explanation-dialog');
+  await expect(expDialog).toBeVisible();
+  await expect(expDialog.locator('#abe-exp-result')).toHaveText('오답입니다');
+  await expect(expDialog.locator('#abe-exp-correct')).toHaveText('D. AWS Network Firewall');
+  await expect(expDialog.locator('#abe-exp-user')).toHaveText('A. Amazon GuardDuty');
+
+  // 선택한 답(A)은 유지되고 모든 라디오 입력은 비활성화(disabled)되어 있다
+  await expect(page.locator('input[id="q1.R.A"]')).toBeChecked();
+  const q1Radios = page.locator('input[name="response-q1"]');
+  for (let i = 0; i < 4; i++) {
+    await expect(q1Radios.nth(i)).toBeDisabled();
+  }
+
+  // 해설 창을 닫은 뒤 툴바의 '해설 (X)' 클릭 및 Alt+X로 다시 열린다
+  await page.locator('#abe-exp-close').click();
+  await expect(expDialog).toHaveCount(0);
+
+  const solBtn = page.getByRole('button', { name: '해설 (X)' });
+  await expect(solBtn).toBeVisible();
+  await solBtn.click();
+  await expect(expDialog).toBeVisible();
+
+  await page.locator('#abe-exp-close').click();
+  await expect(expDialog).toHaveCount(0);
+  await page.keyboard.press('Alt+x');
+  await expect(expDialog).toBeVisible();
+
+  // 2) 하단 바에 '결과 화면'과 '이전'/'다음'이 있고 다음 (N) 이동 시 해설 창이 다시 자동으로 열린다
+  await page.locator('#abe-exp-close').click();
+  await page.getByRole('button', { name: '다음 (N)' }).click();
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 2 / 9');
+  await expect(page.getByRole('button', { name: '결과 화면' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '이전 (P)' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '다음 (N)' })).toBeVisible();
+
+  // 2번 문항 진입 시 해설 창이 자동으로 열리고 체크박스가 읽기 전용으로 잠겨 있다
+  await expect(expDialog).toBeVisible();
+  await expect(expDialog.locator('#abe-exp-result')).toHaveText('정답입니다');
+  await expect(page.locator('input[id="q2.R.A"]')).toBeChecked();
+  await expect(page.locator('input[id="q2.R.B"]')).toBeChecked();
+  const q2Boxes = page.locator('input[name="response-q2"]');
+  for (let i = 0; i < await q2Boxes.count(); i++) {
+    await expect(q2Boxes.nth(i)).toBeDisabled();
+  }
+
+  // 3) '검토 화면 (S)'로 오답 해설 목록에 돌아간 뒤 '틀린 질문 검토 (I)'로 틀린 문항만 순회
+  await page.getByRole('button', { name: '검토 화면 (S)' }).click();
+  await expect(page.locator('.abe-reviewScreen-2-0')).toBeVisible();
+  await page.getByRole('tab', { name: /잘못된/ }).click();
+  await page.getByRole('button', { name: '틀린 질문 검토 (I)' }).click();
+
+  // 첫 번째 틀린 문항(q1) -> 다음 (N) 클릭 시 정답인 q2를 건너뛰고 q3(index 2)로 이동
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 1 / 9');
+  await expect(expDialog).toBeVisible();
+  await page.getByRole('button', { name: '다음 (N)' }).click();
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 3 / 9');
+  await expect(expDialog).toBeVisible();
+
+  // 다음 (N)으로 q4(ordering)로 이동 시 드롭다운도 선택한 답이 유지되고 disabled 상태다
+  await page.getByRole('button', { name: '다음 (N)' }).click();
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 4 / 9');
+  const q4Selects = page.locator('select.abe-drop_down');
+  await expect(q4Selects.nth(0)).toHaveValue('c1');
+  await expect(q4Selects.nth(1)).toHaveValue('c2');
+  await expect(q4Selects.nth(2)).toHaveValue('c5');
+  for (let i = 0; i < 3; i++) {
+    await expect(q4Selects.nth(i)).toBeDisabled();
+  }
+
+  // 4) 하단 바의 '결과 화면' 버튼을 누르면 결과 화면으로 복귀한다
+  await page.getByRole('button', { name: '결과 화면' }).click();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('result');
+  await expect(page.getByRole('heading', { name: '시험 결과' })).toBeVisible();
+});
+
