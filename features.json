@@ -267,7 +267,7 @@
       "스펙 7절 절차 포함",
       "validate 실패 시 수정 루프 명시"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M4-03",

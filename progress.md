@@ -286,3 +286,10 @@
 - `tests/build.spec.mjs`에 `[M4-01]` 테스트를 추가하여 `npm run build -- exams/sample.json`, `npm run build:all`, 여러 파일 빌드 및 오류 처리를 검증했고 회귀 검사(67/67)를 통과해 `passes: true`로 변경했다.
 - 남은 문제: 프로젝트 scope의 덤프 변환 스킬(`.claude/skills/dump-to-exam/SKILL.md` 및 `.agents/skills/dump-to-exam/SKILL.md`, M4-02)과 README 사용법(M4-03)이 남아 있다.
 - 다음 할 일: M4-02(`덤프 변환 스킬 .claude/skills/dump-to-exam/SKILL.md`)를 진행한다.
+
+## 2026-11-03 M4-02
+- 프로젝트 scope 내에 `.claude/skills/dump-to-exam/SKILL.md`를 작성하고, 벤더 중립 경로인 `.agents/skills/dump-to-exam/SKILL.md`에 상대 심볼릭 링크를 구성했다.
+- 스펙 7절에 명시된 덤프 변환 8단계(덤프 원문 읽기, ko/en 번역, disputed 표기, AI 해설, 도메인 1–4 분류, 65문항 구성, validate 수정 루프, 빌드)와 `scripts/validate.mjs` 실패 시 오류 분석 및 재검증 피드백 루프를 상세 기술했다.
+- `tests/dump.spec.mjs`에 `[M4-02]` 테스트 3개를 작성하여 검증했고, `scripts/check.sh passing`(70/70)을 통과해 `passes: true`로 변경했다.
+- 남은 문제: README 문서화(캡처 재생성, 빌드, 덤프 변환, 하네스 실행 방법, M4-03)가 남아 있다.
+- 다음 할 일: M4-03(`README 사용법`)을 진행한다.
