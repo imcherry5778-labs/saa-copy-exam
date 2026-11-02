@@ -40,6 +40,7 @@ body { margin: 0; }
 .abe-opt-input label { margin-top: 2px; }
 .abe-opt:last-child .abe-opt-letter, .abe-opt:last-child .abe-opt-text { margin-top: 0; }
 #abe-navigation-jump { padding-right: 10px; }
+#abe-navigation-jump.abe-has-prev { padding-right: 8.33px; }
 .abe-opt-letter { width: 48px; flex: none; margin-top: 2px; height: 48px; }
 .abe-opt-letter p { margin: 0; }
 .abe-opt-text { margin-top: 2px; }

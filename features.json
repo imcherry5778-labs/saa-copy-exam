@@ -59,7 +59,7 @@
       "[M1-06] visual: ko-05-q2 일치",
       "select 개수 초과 선택 시 동작이 데모와 같음(초과 선택 허용, 완료 조건은 정확히 select개)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M1-07",

@@ -84,12 +84,12 @@
 
   function navBar() {
     var prev = state.index > 0 ?
-      '<div class="abe-inline-button-right abe-icon-left" style="padding-left:0"><button id="abe-PreviousButton" class="rc-fonts-Normal" data-accesskey="P" accesskey="P">' +
+      '<div class="abe-inline-button-right abe-icon-left" style="padding-left:5px"><button id="abe-PreviousButton" class="rc-fonts-Normal" data-accesskey="P" accesskey="P">' +
       keyLabel(label('UserInterface.Buttons.Button.Previous.label')) + '</button></div>' : '';
     var next = '<div class="abe-inline-button-right abe-icon-right"><button id="abe-NextButton" class="rc-fonts-Normal" data-accesskey="N" accesskey="N">' +
       keyLabel(label('UserInterface.Buttons.Button.Next.label')) + '</button></div>';
     return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish"></div>' +
-      '<div id="abe-navigation-jump">' + prev + next + '</div></div>';
+      '<div id="abe-navigation-jump"' + (prev ? ' class="abe-has-prev"' : '') + '>' + prev + next + '</div></div>';
   }
 
   function textBlock(text) {
