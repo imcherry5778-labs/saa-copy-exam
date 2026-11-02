@@ -69,15 +69,18 @@ body { margin: 0; }
 .rc-fonts-TextEntry {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:12pt !important;font-weight:normal !important;}
 
 /* English 팝업 */
-.abe-english-dialog { position: absolute; top: 270px; left: 50%; margin-left: -484px; width: 960px; z-index: 2147483258; box-sizing: content-box; padding: 3.2px; border: 1px solid #fff; }
+.abe-english-dialog { position: absolute; top: 270px; left: 50%; margin-left: -484px; width: 960px; z-index: 2147483258; box-sizing: content-box; padding: 3px; border: 1px solid #fff; }
 .abe-english-dialog .abe-popup-window-tabbed-dialog { height: 488px; background: #fff; color: #000; padding: 0; overflow: hidden; }
-.abe-eng-body { padding: 39px 18px 0; }
+.abe-eng-body { padding: 35px 18px 0; }
 .abe-eng-body p { margin: 0 0 16px; line-height: 24px; }
 .abe-eng-opt { padding: 37px 0 0; height: 24px; margin-bottom: 0; }
 .abe-eng-opt p { margin: 0; }
-div.abe-eng-opt:first-of-type { margin-top: 7px; }
-.abe-english-dialog .ui-dialog-titlebar { box-sizing: border-box; height: 44px; }
-
+div.abe-eng-opt:first-of-type { margin-top: 23px; }
+.abe-english-dialog .ui-dialog-titlebar { box-sizing: border-box; height: 44px; border-bottom: 1px solid #fff; }
+.abe-english-dialog .ui-dialog-title { position: relative; top: 1.6px; }
+.abe-english-dialog #abe-eng-close { font-size: 0; color: transparent; }
+.abe-english-dialog #abe-eng-close .ui-icon { display: block; position: absolute; top: 10px; left: 4px; width: 20px; height: 20px; margin: -8px 0 0 -8px; }
+.abe-english-dialog #abe-eng-close .ui-button-icon-space { display: none; }
 /* 설명 대화상자 */
 .abe-comment-dialog { position: absolute; top: 378px; left: 50%; margin-left: -321px; width: 633.6px; z-index: 2147483147; box-sizing: content-box; padding: 3.2px; border: 1px solid #fff; background: #006daa; color: #fff; }
 .abe-comment-dialog .ui-dialog-titlebar { box-sizing: content-box; padding: 6.4px 8px; height: 27.19px; position: relative; }
