@@ -42,6 +42,20 @@ body { margin: 0; }
 .abe-opt-text { margin-top: 2px; }
 .abe-opt-letter .tab { display: inline-block; }
 
+/* ordering 문항 */
+.abe-stem.abe-stem-ordering { padding-bottom: 0; }
+.abe-choice-list { margin: 16px 0 16px 10px; padding: 0 0 0 40px; }
+.abe-choice-list li { line-height: 24px; }
+.abe-slot-gap { height: 24px; }
+.abe-slot { min-height: 27px; }
+.ui-selectmenu-button { position: relative; display: inline-block; box-sizing: border-box; margin: 0 1.6px 0 0; padding: 0 12px 0 0; border: 1px solid #000; background: #fff; color: #000; line-height: 22.4px; cursor: default; }
+.ui-selectmenu-button .ui-selectmenu-text { display: block; padding-left: 5px; white-space: nowrap; }
+.ui-selectmenu-button .ui-icon { position: absolute; top: 7px; right: 0; width: 9px; height: 12px; margin: 0; }
+.ui-selectmenu-button .ui-icon::after { content: ''; position: absolute; left: 0; top: 3px; border: 4.5px solid transparent; border-top: 6px solid #000; border-bottom: 0; }
+.ui-selectmenu-button .abe-ghost { display: block; height: 0; overflow: hidden; visibility: hidden; padding-left: 5px; white-space: nowrap; }
+.ui-selectmenu-button .abe-ghost span { display: block; }
+.ui-selectmenu-button select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
 .rc-fonts-Large {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:16pt !important;font-weight:normal !important;}
 .rc-fonts-Normal {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:14pt !important;font-weight:normal !important;}
 .rc-fonts-Small {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:12pt !important;font-weight:normal !important;}

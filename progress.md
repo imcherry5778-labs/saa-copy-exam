@@ -46,3 +46,10 @@
 - `tests/multiple.spec.mjs`에 `[M1-06]` 테스트를 추가했다(select개 초과 선택 허용, 해제 시 제거). 통과했고 회귀 검사(passing)도 통과했다.
 - 남은 문제: 완료 조건(정확히 select개)은 M2-03에서 구현한다.
 - 다음 할 일: M1-07(ordering 문항, `ko-05-q4`, `ko-05-q5` 픽셀 일치, 드롭다운 선택 저장).
+
+## 2026-11-02 M1-07
+- `src/app.js`에 ordering 렌더링(보기 글머리표, 슬롯별 드롭다운, `side`에 따른 라벨 위치)과 드롭다운 선택 저장(`state.answers[id]`는 슬롯 순서 배열, 빈 슬롯은 `null`)을 구현했다.
+- 드롭다운은 jQuery UI selectmenu 모양의 span 버튼 위에 투명한 `<select>`를 덮는 방식이다. 너비는 숨긴 ghost 텍스트로 가장 긴 보기에 맞춘다. 화살표는 CSS 삼각형이다.
+- `ko-05-q4`, `ko-05-q5` 픽셀 테스트와 `tests/ordering.spec.mjs`의 `[M1-07]` 테스트 2개가 통과했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: 네이티브 `<select>` 목록이 열린 모양은 기준(jQuery UI 메뉴)과 다르다. 기준 이미지가 없어 픽셀 비교 대상은 아니다.
+- 다음 할 일: M1-08(matching 문항, `ko-05-q6`, `ko-05-q7` 픽셀 일치). 드롭다운 컴포넌트(`slotSelect`)를 재사용할 수 있다.

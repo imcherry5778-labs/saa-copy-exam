@@ -101,12 +101,43 @@
       '<label class="abe-opt-text" for="' + id + '" aria-hidden="true"><div class="abe-mat-html">' + esc(opt.ko) + '</div></label></div>';
   }
 
+  // jQuery UI selectmenu 모양의 드롭다운. 실제 <select>를 투명하게 덮어 입력을 받는다.
+  function slotSelect(item, i, value) {
+    var ph = label('UserInterface.Property.ComboBoxEmptyValue.value');
+    var cur = null;
+    for (var k = 0; k < item.choices.length; k++) if (item.choices[k].id === value) cur = item.choices[k];
+    var ghost = [ph].concat(item.choices.map(function (c) { return c.ko; })).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('');
+    var opts = '<option value="">' + esc(ph) + '</option>' + item.choices.map(function (c) {
+      return '<option value="' + esc(c.id) + '"' + (c.id === value ? ' selected' : '') + '>' + esc(c.ko) + '</option>';
+    }).join('');
+    var name = item.slots[i].label ? item.slots[i].label.ko : '';
+    return '<span class="ui-selectmenu"><span class="ui-selectmenu-button" data-slot="' + i + '">' +
+      '<span class="ui-icon ui-icon-triangle-1-s"></span><span class="ui-selectmenu-text">' + esc(cur ? cur.ko : ph) + '</span>' +
+      '<span class="abe-ghost" aria-hidden="true">' + ghost + '</span>' +
+      '<select class="abe-drop_down" data-slot="' + i + '" aria-label="' + esc(name || ('슬롯 ' + (i + 1))) + '">' + opts + '</select></span></span>';
+  }
+
+  function orderingBody(item) {
+    var sel = state.answers[item.id] || [];
+    var html = '<div class="abe-ordering">';
+    html += '<ul class="abe-choice-list">' + item.choices.map(function (c) { return '<li> ' + esc(c.ko) + '</li>'; }).join('') + '</ul>';
+    html += '<div class="abe-slot-gap">&nbsp;</div>';
+    item.slots.forEach(function (sl, i) {
+      var lab = sl.label ? esc(sl.label.ko) : '';
+      var dd = slotSelect(item, i, sel[i] || null);
+      html += '<div class="abe-slot">' + (sl.side === 'left' ? (lab ? lab + '&nbsp;&nbsp;&nbsp;&nbsp;' : '') + dd : dd + (lab ? '&nbsp;' + lab : '')) + '</div>';
+      if (i < item.slots.length - 1) html += '<div class="abe-slot-gap">&nbsp;</div>';
+    });
+    return html + '</div>';
+  }
+
   function itemBody(item) {
     var sel = state.answers[item.id] || [];
     var multi = item.type === 'multiple';
     var html = '<div class="abe-english-row"><button id="exhibit1" class="abe-ExhibitButton rc-fonts-Small Secondary abe-NoDefaultImage" style="color:#fff !important">' +
       '<div class="abe-ImageLabelContainer"><div class="abe-DefaultLabelContainer">English</div></div></button></div>';
-    html += '<div class="abe-stem abe-mat-html">' + textBlock(item.stem.ko) + '</div>';
+    html += '<div class="abe-stem abe-mat-html' + (item.type === 'ordering' ? ' abe-stem-ordering' : '') + '">' + textBlock(item.stem.ko) + '</div>';
+    if (item.type === 'ordering') html += orderingBody(item);
     if (item.options) html += item.options.map(function (o) { return optionRow(item, o, sel.indexOf(o.id) >= 0, multi); }).join('');
     return html;
   }
@@ -147,6 +178,15 @@
 
   app.addEventListener('change', function (e) {
     var t = e.target;
+    if (t && t.tagName === 'SELECT' && t.hasAttribute('data-slot')) {
+      var it = exam.items[state.index];
+      var arr = (state.answers[it.id] || []).slice();
+      while (arr.length < it.slots.length) arr.push(null);
+      arr[+t.getAttribute('data-slot')] = t.value || null;
+      state.answers[it.id] = arr;
+      render();
+      return;
+    }
     if (!t || t.tagName !== 'INPUT' || !/^response-/.test(t.name)) return;
     var qid = t.name.slice('response-'.length);
     var cur = state.answers[qid] || [];
