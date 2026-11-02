@@ -84,3 +84,7 @@ div.abe-eng-opt:first-of-type { margin-top: 7px; }
 .abe-comment-dialog .ui-dialog-buttonpane { margin: 0 15px 0 0; padding: 0 6.4px 3.2px; height: 43.59px; background: #006daa; border: 0; }
 .abe-comment-dialog .ui-dialog-buttonset { float: right; }
 .abe-comment-dialog .ui-dialog-buttonset button { margin: 8px 6.4px 8px 0; padding: 3.8px 10px 5.8px 12px; border: 1px solid #fff; background: #006daa; color: #fff; cursor: pointer; }
+.abe-colorSchemeDropDown { position: relative; overflow: visible !important; }
+.abe-colorSchemeMenu { position: absolute; top: 28px; left: 3px; z-index: 100; width: 190px; margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid #000; text-align: left; }
+.abe-colorSchemeMenu li { padding: 3px 5px; font-size: 16px; color: #000; cursor: pointer; }
+.abe-colorSchemeMenu li.ui-state-active, .abe-colorSchemeMenu li:hover { color: #fff; background: #4678BE; }

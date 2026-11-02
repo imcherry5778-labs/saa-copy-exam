@@ -10,7 +10,7 @@
   var state = {
     phase: 'item', mode: 'exam', index: 0, fromReview: false,
     answers: {}, flags: {}, comments: {}, checked: {},
-    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false,
+    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false,
   };
   var frozen = false;
 
@@ -63,9 +63,13 @@
     var names = ['Default', 'YellowonBlack', 'LightYellowonBlack', 'WhiteonBlack', 'BlackonYellow', 'BlueonYellow',
       'BlackonLightYellow', 'BlackonSalmon', 'YellowonBlue', 'WhiteonBlue', 'BlackonWhite', 'BlueonWhite'];
     var text = label('UserInterface.ColorSchemes.Property.Default.value');
+    var menu = state.schemeOpen ? '<ul id="colorSchemes-menu" class="ui-menu abe-colorSchemeMenu" role="listbox">' + names.map(function (n, i) {
+      return '<li class="ui-menu-item' + (i === 0 ? ' ui-state-active' : '') + '" role="option" data-scheme="' + n + '"><div>' +
+        esc(label('UserInterface.ColorSchemes.Property.' + n + '.value')) + '</div></li>';
+    }).join('') + '</ul>' : '';
     return '<div class="abe-icon-left abe-colorSchemeDropDown"><span class="ui-selectmenu abe-colorSchemeDropdownButton" id="colorSchemeDropDown">' +
-      '<span id="dropdown-colorSchemes" class="abe-drop_down"><span class="ui-selectmenu-button ui-widget ui-button ui-state-default ui-corner-all" tabindex="0" id="colorSchemes-button" role="combobox" aria-expanded="false" aria-haspopup="true" aria-label="색 구성표에 대해 선택된 기본 색 구성표">' +
-      '<span class="ui-icon ui-icon-triangle-1-s"></span><span class="ui-selectmenu-text rc-fonts-Small">' + esc(text) + '</span></span></span></span></div>';
+      '<span id="dropdown-colorSchemes" class="abe-drop_down"><span class="ui-selectmenu-button ui-widget ui-button ui-state-default ui-corner-all" tabindex="0" id="colorSchemes-button" role="combobox" aria-expanded="' + !!state.schemeOpen + '" aria-haspopup="true" aria-label="색 구성표에 대해 선택된 기본 색 구성표">' +
+      '<span class="ui-icon ui-icon-triangle-1-s"></span><span class="ui-selectmenu-text rc-fonts-Small">' + esc(text) + '</span></span></span></span>' + menu + '</div>';
   }
 
   function toolBar() {
@@ -211,7 +215,21 @@
   }
   setInterval(tick, 1000);
 
+  // Alt+글자: 브라우저별 accesskey 조합 차이를 없애려고 직접 처리한다(이중 실행 방지로 기본 동작은 막는다).
+  document.addEventListener('keydown', function (e) {
+    if (!e.altKey || e.ctrlKey || e.metaKey || e.key.length !== 1) return;
+    var b = app.querySelector('button[accesskey="' + e.key.toUpperCase() + '"]');
+    if (!b) return;
+    e.preventDefault();
+    b.click();
+  });
+
   app.addEventListener('click', function (e) {
+    var mi = e.target.closest('#colorSchemes-menu li');
+    if (mi) { state.schemeOpen = false; render(); return; }
+    var sb = e.target.closest('#colorSchemes-button');
+    if (sb) { state.schemeOpen = !state.schemeOpen; render(); return; }
+    if (state.schemeOpen) { state.schemeOpen = false; render(); }
     var t = e.target.closest('button, input');
     if (!t) return;
     if (t.id === 'exhibit1' || t.closest('#exhibit1')) { state.english = true; render(); }
