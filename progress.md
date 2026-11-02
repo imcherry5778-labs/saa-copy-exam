@@ -197,3 +197,10 @@
 - `src/app.css`에 Review용 CJK 글꼴 폴백(`"Noto Sans CJK KR"`), `.abe-reviewItemEntry { border-color: #C0C0C0; }`, `button:where(.abe-reviewScreen-2-0 .ui-button)` 기본 스타일을 추가하여 `ko-06-review`, `ko-06-review-incomplete-tab`, `ko-06-review-flagged-tab` 픽셀 테스트 3개와 `tests/review.spec.mjs` 테스트 2개 및 회귀 검사(39/39)를 모두 통과했다.
 - 남은 문제: Review 화면에서 문항이나 상단 검토 버튼을 클릭했을 때의 검토 대기열 이동 동작은 M2-04~M2-06에서 구현해야 한다.
 - 다음 할 일: M2-03(`유형별 완료 판정(미완료 수)` 경계값 테스트)을 진행한다.
+
+## 2026-11-02 M2-03
+- `src/app.js`의 `isComplete(item)`에서 `single`·`multiple` 배열 원소가 비어 있지 않은지 함께 검사하도록 보강했다.
+- `tests/review.spec.mjs`에 `[M2-03]` 테스트를 추가해 5가지 유형(`single`, `multiple`, `ordering`, `matching`, `caseStudy`)의 무응답·부분 응답·초과 선택·정확한 완료 조건과 미완료 수(`#IncompleteCount`) 및 미완료 0개일 때 빈 목록 문구를 검증했고 회귀 검사(40/40)를 통과했다.
+- 남은 문제: Review 화면에서 `검토` 버튼·`모두 검토 (A)` 클릭 시 문항 이동 및 `검토 화면 (S)` 복귀 동작은 아직 없다.
+- 다음 할 일: M2-04(`검토로 문항 이동, 검토 화면 복귀, 모두 검토`, `ko-06-reviewing-q1` 픽셀 일치)를 진행한다.
+

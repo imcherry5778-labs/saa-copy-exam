@@ -215,8 +215,8 @@
 
   function isComplete(item) {
     var ans = state.answers[item.id];
-    if (item.type === 'single') return Array.isArray(ans) && ans.length === 1;
-    if (item.type === 'multiple') return Array.isArray(ans) && ans.length === item.select;
+    if (item.type === 'single') return Array.isArray(ans) && ans.length === 1 && !!ans[0];
+    if (item.type === 'multiple') return Array.isArray(ans) && ans.length === item.select && ans.every(Boolean);
     if (item.type === 'ordering') return Array.isArray(ans) && ans.length === item.slots.length && item.slots.every(function (_, i) { return !!ans[i]; });
     if (item.type === 'matching') return !!(ans && typeof ans === 'object' && !Array.isArray(ans) && item.prompts.every(function (p) { return !!ans[p.id]; }));
     return false;

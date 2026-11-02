@@ -146,7 +146,7 @@
     "steps": [
       "[M2-03] 테스트: 5유형의 완료/미완료 경계값"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-04",
