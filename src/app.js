@@ -10,7 +10,7 @@
   var state = {
     phase: 'item', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
     answers: {}, flags: {}, comments: {}, checked: {},
-    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false,
+    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false, endReviewStep: 0,
   };
   var frozen = false;
 
@@ -324,12 +324,44 @@
       '</div></div></div>';
   }
 
+  function endReviewDialog() {
+    var step = state.endReviewStep;
+    var incCount = exam.items.filter(function (it) { return !isComplete(it); }).length;
+    var base = incCount === 0 ? 'EndReviewPreScoreCompleteItems' : (incCount === 1 ? 'EndReviewPreScoreIncompleteItem' : 'EndReviewPreScoreIncompleteItems');
+    var msgId = base + step;
+    var titleId = step === 1 ? 'ui-id-76' : 'ui-id-77';
+    var title = label('UserInterface.Messages.Message.' + msgId + '.title');
+    var rawText = label('UserInterface.Messages.Message.' + msgId + '.text').replace(/\$\{incompleteItems\}/g, String(incCount));
+    var msgHtml = '<div>' + rawText.split(/<br\s*\/?>/gi).map(function (c) { return '<p>' + esc(c.trim()) + '</p>'; }).join('') + '</div>';
+    var alertType = label('UserInterface.Messages.Message.DialogTypeAlert.text');
+    var yes = label('UserInterface.Buttons.Button.Yes.label');
+    var no = label('UserInterface.Buttons.Button.No.label');
+    return '<div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front modal ui-dialog-buttons ui-draggable Primary abe-end-review-dialog" aria-describedby="' + msgId + '" aria-labelledby="' + titleId + '" style="height: auto; width: 477.6px; top: 428.428px; left: 717.006px; z-index: 2147483257;">' +
+      '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">' +
+      '<span id="' + titleId + '" class="ui-dialog-title rc-fonts-Message" tabindex="-1">' + esc(title) + '</span>' +
+      '<button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close" id="' + msgId + '-closeBtn" style="display: none;"><span class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space"> </span>Close</button></div>' +
+      '<div id="' + msgId + '" style="overflow: hidden auto; width: auto; min-height: 53.85px; max-height: none; height: auto;" class="abe-WarningImage alert-dialog ui-dialog-content ui-widget-content rc-fonts-ItemText">' +
+      '<span class="sr-only">' + esc(alertType) + '. </span>' +
+      '<div class="abe-dialogDiv"><div class="abe-infoDiv"></div>' +
+      '<p tabindex="-1" class="abe-messageText rc-fonts-Message" data-msg-html="' + esc(msgHtml) + '"></p></div></div>' +
+      '<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"><div class="ui-dialog-buttonset position-center">' +
+      '<button type="button" id="Yes" class="ui-button ui-corner-all ui-widget rc-fonts-Message" accesskey="y">' + keyLabel(yes) + '</button>' +
+      '<button type="button" id="No" class="ui-button ui-corner-all ui-widget rc-fonts-Message" accesskey="n">' + keyLabel(no) + '</button>' +
+      '</div></div></div><div class="ui-widget-overlay ui-front" style="z-index: 100;"></div>';
+  }
+
   function render() {
     var item = exam.items[state.index];
     if (state.phase === 'review') {
       app.innerHTML = titleBar(item) + toolBar() +
         '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main" style="background-color: rgb(242, 243, 245);"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
-        reviewBody() + '</div></div>' + navBar() + (state.instructionsOpen ? instructionsDialog() : '');
+        reviewBody() + '</div></div>' + navBar() + (state.instructionsOpen ? instructionsDialog() : '') + (state.endReviewStep ? endReviewDialog() : '');
+      var msgP = app.querySelector('.abe-messageText[data-msg-html]');
+      if (msgP) msgP.innerHTML = msgP.getAttribute('data-msg-html');
+      return;
+    }
+    if (state.phase === 'result') {
+      app.innerHTML = titleBar(item) + '<div id="abe-contentPane" class="Content rc-fonts-ItemText" role="main"><div id="abe-resultScreen">시험 결과</div></div>';
       return;
     }
     app.innerHTML = titleBar(item) + toolBar() +
@@ -423,6 +455,13 @@
     if (t.classList.contains('abe-reviewSectionTitle')) { selectReviewTab(t.id); return; }
     if (t.id === 'abe-ReviewInstructionsButton') { state.instructionsOpen = true; render(); return; }
     if (t.id === 'Close') { state.instructionsOpen = false; render(); return; }
+    if (t.id === 'abe-EndReviewButton') { state.instructionsOpen = false; state.endReviewStep = 1; render(); return; }
+    if (t.id === 'Yes' && state.endReviewStep) {
+      if (state.endReviewStep === 1) { state.endReviewStep = 2; render(); }
+      else { state.endReviewStep = 0; state.phase = 'result'; render(); }
+      return;
+    }
+    if (t.id === 'No' && state.endReviewStep) { state.endReviewStep = 0; render(); return; }
     if (t.classList.contains('abe-reviewItemBtn')) {
       state.phase = 'item';
       state.fromReview = true;
@@ -545,6 +584,7 @@
         state.fromReview = false;
         state.reviewList = null;
         state.instructionsOpen = false;
+        state.endReviewStep = 0;
         for (var k in s) state[k] = s[k];
         render();
       },

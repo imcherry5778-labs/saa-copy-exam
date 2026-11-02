@@ -133,3 +133,13 @@ div.abe-eng-opt:first-of-type { margin-top: 23px; }
 .abe-ReviewInstructionsDialog .abe-ReviewInstructionTitle { float: left; margin: 2.238px 0; overflow: hidden; font-family: Batang, "Noto Sans CJK KR", sans-serif !important; font-size: 22.38px !important; font-weight: 700 !important; }
 .abe-ReviewInstructionsDialog .abe-ReviewInstructionsDialogButtonPane { padding: 0 6.4px 3.2px; }
 .abe-ReviewInstructionsDialog .abe-ReviewInstructionsDialogCloseButton { margin: 8px 6.4px 8px 0; border: 1px solid #fff; line-height: 16px; }
+
+/* 검토 종료 확인 대화상자 */
+.abe-end-review-dialog { position: absolute; box-sizing: content-box; padding: 3.2px; border: 1px solid #fff; overflow: hidden; }
+.abe-end-review-dialog .ui-dialog-titlebar { position: relative; padding: 6.4px 8px; border-bottom: 1px solid #fff; }
+.abe-end-review-dialog .ui-dialog-titlebar::after { content: ""; display: table; clear: both; }
+.abe-end-review-dialog .ui-dialog-title { float: left; width: 100%; margin: 1.6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.abe-end-review-dialog .alert-dialog { position: relative; border: 0; padding: 0 0 0 60px; }
+.abe-end-review-dialog .ui-dialog-buttonpane { padding: 0 6.4px 3.2px; border: 0; }
+.abe-end-review-dialog .ui-dialog-buttonset button { margin: 8px 6.4px 8px 0; padding: 3.8px 10px 5.8px 12px; border: 1px solid #fff; border-radius: 0; line-height: 16px; cursor: pointer; }
+.ui-widget-overlay { position: fixed; inset: 0; opacity: 0; }

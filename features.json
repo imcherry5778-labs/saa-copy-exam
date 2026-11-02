@@ -175,7 +175,7 @@
       "[M2-06] visual: ko-07-end-review-confirm, ko-07-end-review-confirm2 일치",
       "미완료 0개일 때 문구 변형"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-07",

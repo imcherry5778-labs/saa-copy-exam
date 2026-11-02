@@ -167,4 +167,65 @@ test('[M2-05] 지침 (R) 버튼으로 지침 대화상자가 열리고 닫기 (C
   await expect(dlg).toHaveCount(0);
 });
 
+test('[M2-06] 검토 종료 (E) 2단계 확인과 미완료 0개일 때 문구 변형이 동작한다', async ({ page }) => {
+  // 1) 미완료 문항이 있을 때 (8개 미완료)
+  await openReview(page, { answers: { q1: ['A'] }, flags: { q1: true } });
+
+  await page.getByRole('button', { name: '검토 종료 (E)' }).click();
+  const dlg1 = page.getByRole('dialog', { name: '검토 종료' });
+  await expect(dlg1).toBeVisible();
+  await expect(dlg1).toContainText('8개의 질문을 완료하지 않으셨습니다.');
+
+  // 1단계에서 아니오 클릭 시 닫히고 Review 유지
+  await dlg1.getByRole('button', { name: '아니오 (N)' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('.abe-reviewScreen-2-0')).toBeVisible();
+
+  // 다시 열고 1단계 예 -> 2단계(검토 종료 확인)
+  await page.getByRole('button', { name: '검토 종료 (E)' }).click();
+  await page.getByRole('button', { name: '예 (Y)' }).click();
+  const dlg2 = page.getByRole('dialog', { name: '검토 종료 확인' });
+  await expect(dlg2).toBeVisible();
+  await expect(dlg2).toContainText('아직 완료하지 않은 8개 질문에 답할 수 없습니다.');
+
+  // 2단계에서 아니오 클릭 시 닫히고 Review 유지
+  await dlg2.getByRole('button', { name: '아니오 (N)' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('.abe-reviewScreen-2-0')).toBeVisible();
+
+  // 2) 미완료 문항이 0개일 때 문구 변형 (EndReviewPreScoreCompleteItems1/2) 및 최종 예 클릭 시 결과 화면 전환
+  await openReview(page, {
+    answers: {
+      q1: ['D'],
+      q2: ['A', 'B'],
+      q3: ['C'],
+      q4: ['c1', 'c2', 'c6'],
+      q5: ['c2', 'c1', 'c3'],
+      q6: { p1: 'c2', p2: 'c1', p3: 'c2', p4: 'c2', p5: 'c1' },
+      q7: { p1: 'c2', p2: 'c1', p3: 'c1', p4: 'c2' },
+      q8: ['A', 'C'],
+      q9: ['B'],
+    },
+  });
+
+  await page.getByRole('button', { name: '검토 종료 (E)' }).click();
+  const compDlg1 = page.getByRole('dialog', { name: '검토 종료' });
+  await expect(compDlg1).toBeVisible();
+  await expect(compDlg1).toContainText('현재 검토를 종료하도록 선택하셨습니다. 예 버튼을');
+  await expect(compDlg1).not.toContainText('질문을 완료하지 않으셨습니다');
+
+  await compDlg1.getByRole('button', { name: '예 (Y)' }).click();
+  const compDlg2 = page.getByRole('dialog', { name: '검토 종료 확인' });
+  await expect(compDlg2).toBeVisible();
+  await expect(compDlg2).toContainText('본 검토를 종료하도록 선택했는지 여부를 확인해 주십시오.');
+  await expect(compDlg2).toContainText('예 버튼을 클릭하면 이 검토를 다시 시작할 수 없습니다.');
+  await expect(compDlg2).not.toContainText('질문에 답할 수 없습니다');
+
+  await compDlg2.getByRole('button', { name: '예 (Y)' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const phase = await page.evaluate(() => window.__exam.state.phase);
+  expect(phase).toBe('result');
+});
+
+
 

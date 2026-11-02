@@ -216,4 +216,11 @@
 - 남은 문제: Review 하단 바의 `검토 종료 (E)` 2단계 확인 대화상자는 아직 구현되지 않았다.
 - 다음 할 일: M2-06(`검토 종료 2단계 확인`, `ko-07-end-review-confirm`, `ko-07-end-review-confirm2` 픽셀 일치, 미완료 0개일 때 문구 변형)을 진행한다.
 
+## 2026-11-02 M2-06
+- Review 하단 바의 `검토 종료 (E)`(`#abe-EndReviewButton`) 클릭 시 미완료 문항 수에 따라 `EndReviewPreScoreIncompleteItems1/2`, `EndReviewPreScoreIncompleteItem1/2`, `EndReviewPreScoreCompleteItems1/2` 문자열로 2단계 확인 대화상자(`.abe-end-review-dialog`)와 투명 모달 오버레이(`.ui-widget-overlay`)를 렌더링하고 최종 `예 (Y)` 클릭 시 `phase = 'result'`로 전환하게 구현했다.
+- 원본 `DialogFactory.buildDialogMessageHtml`과 동일하게 `<p class="abe-messageText">` 생성 후 내부에 `<div><p>…</p></div>`를 주입하여 `p:not(:empty)` 및 빈 문단 여백 규칙이 그대로 적용되게 했고, `[M2-06]` 픽셀 테스트 2개(`ko-07-end-review-confirm`, `ko-07-end-review-confirm2`)와 기능 테스트(`tests/review.spec.mjs`) 및 회귀 검사(47/47)를 통과해 `passes: true`로 변경했다.
+- 남은 문제: 타이머 카운트다운 만료 시 자동 결과 전환과 채점/결과 화면 본문은 아직 구현되지 않았다.
+- 다음 할 일: M2-07(`타이머 카운트다운과 시간 종료 시 결과 화면`)을 진행한다.
+
+
 
