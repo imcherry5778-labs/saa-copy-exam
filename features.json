@@ -257,7 +257,7 @@
       "npm run build -- exams/sample.json, npm run build:all",
       "[M4-01] 테스트 통과"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M4-02",

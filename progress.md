@@ -280,3 +280,9 @@
 ## 2026-11-03 M4 지침 (사용자 요청)
 - M4-02(`dump-to-exam` 스킬): 반드시 **프로젝트 scope**(저장소 내부)로만 생성한다(글로벌 `~/.claude`, `~/.config` 등 사용자 홈 경로에는 절대 생성하지 않는다).
 - 스펙 경로인 `.claude/skills/dump-to-exam/SKILL.md`를 작성하고, 벤더 중립 프로젝트 스킬 경로인 `.agents/skills/dump-to-exam/SKILL.md`에서도 동일하게 인식되도록 심볼릭 링크(또는 동일 파일)로 함께 구성하며 `[M4-02]` 테스트에서 검증한다.
+
+## 2026-11-03 M4-01
+- `scripts/build.mjs`에서 다중 파일 인자 전달 및 `--all` 옵션을 통한 `exams/*.json` 일괄 빌드를 지원하도록 개선하고 `package.json`에 `build:all` 스크립트를 추가했다.
+- `tests/build.spec.mjs`에 `[M4-01]` 테스트를 추가하여 `npm run build -- exams/sample.json`, `npm run build:all`, 여러 파일 빌드 및 오류 처리를 검증했고 회귀 검사(67/67)를 통과해 `passes: true`로 변경했다.
+- 남은 문제: 프로젝트 scope의 덤프 변환 스킬(`.claude/skills/dump-to-exam/SKILL.md` 및 `.agents/skills/dump-to-exam/SKILL.md`, M4-02)과 README 사용법(M4-03)이 남아 있다.
+- 다음 할 일: M4-02(`덤프 변환 스킬 .claude/skills/dump-to-exam/SKILL.md`)를 진행한다.

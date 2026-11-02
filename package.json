@@ -6,6 +6,7 @@
     "check": "scripts/check.sh",
     "validate": "node scripts/validate.mjs",
     "build": "node scripts/build.mjs",
+    "build:all": "node scripts/build.mjs --all",
     "capture": "node scripts/capture/session.mjs https://www.pearsonvue.com/us/en/redirects/aws/demo-test-kor.html 1920 1080",
     "loop": "./loop.sh"
   },
