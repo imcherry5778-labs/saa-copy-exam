@@ -834,6 +834,22 @@
       render();
       return;
     }
+    if (t.id === 'abe-RetryButton') {
+      var curMode = state.mode;
+      resetState();
+      state.mode = curMode;
+      state.phase = 'item';
+      state.startedAt = Date.now();
+      go(0);
+      return;
+    }
+    if (t.id === 'abe-HomeButton') {
+      clearSavedState();
+      resetState();
+      state.resumeSaved = null;
+      render();
+      return;
+    }
     if (t.classList.contains('abe-reviewItemBtn')) {
       if (state.phase !== 'answerReview') state.phase = 'item';
       state.fromReview = true;

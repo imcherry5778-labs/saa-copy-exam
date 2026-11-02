@@ -247,7 +247,7 @@
     "steps": [
       "[M3-04] 테스트 통과"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M4-01",

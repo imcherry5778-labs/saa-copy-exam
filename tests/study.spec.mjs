@@ -506,3 +506,102 @@ test('[M3-03] 오답 해설에서 검토 진입 시 문항이 읽기 전용으�
   await expect(page.getByRole('heading', { name: '시험 결과' })).toBeVisible();
 });
 
+test('[M3-04] 결과 화면의 오답 해설 (I), 다시 풀기, 처음으로 버튼이 상태 및 저장소를 올바르게 전환한다', async ({ page }) => {
+  await page.goto(URL);
+  const STORAGE_KEY = 'saa-mock:demo-fixture';
+
+  // 1) 결과 화면에서 '오답 해설 (I)' 클릭 및 Alt+I 단축키 -> 오답 해설(answerReview) 화면 전환 및 '결과 화면' 버튼 복귀
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'exam',
+      phase: 'result',
+      remainingSec: 1200,
+      answers: { q1: ['D'], q2: ['A'] },
+      flags: { q1: true },
+      comments: { q1: '메모' },
+      checked: {},
+    });
+  });
+
+  const answerReviewBtn = page.getByRole('button', { name: '오답 해설 (I)' });
+  await expect(answerReviewBtn).toBeVisible();
+  await answerReviewBtn.click();
+
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('answerReview');
+  await expect(page.getByRole('tab', { name: /잘못된/ })).toBeVisible();
+  await expect(page.locator('#IncorrectCount')).toHaveText('8');
+
+  // 오답 해설 목록 하단의 '결과 화면' 버튼으로 다시 결과 화면 복귀
+  await page.getByRole('button', { name: '결과 화면' }).click();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('result');
+  await expect(page.getByRole('heading', { name: '시험 결과' })).toBeVisible();
+
+  // Alt+I 단축키로도 오답 해설 진입 확인 후 복귀
+  await page.keyboard.press('Alt+i');
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('answerReview');
+  await page.getByRole('button', { name: '결과 화면' }).click();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('result');
+
+  // 2) '다시 풀기' 클릭 -> 현재 모드(exam)를 유지한 채 답안·플래그·설명·남은 시간 초기화 후 1번 문항으로 진입
+  await page.getByRole('button', { name: '다시 풀기' }).click();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('item');
+  expect(await page.evaluate(() => window.__exam.state.mode)).toBe('exam');
+  expect(await page.evaluate(() => window.__exam.state.index)).toBe(0);
+  expect(await page.evaluate(() => window.__exam.state.remainingSec)).toBe(1800);
+  expect(await page.evaluate(() => window.__exam.state.answers)).toEqual({});
+  expect(await page.evaluate(() => window.__exam.state.flags)).toEqual({});
+  expect(await page.evaluate(() => window.__exam.state.comments)).toEqual({});
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 1 / 9');
+  await expect(page.locator('#timeRemaining')).toHaveText('30:00');
+  await expect(page.locator('input[id="q1.R.D"]')).not.toBeChecked();
+  await expect(page.locator('#abe-FlagForReviewItemButton')).toHaveClass(/abe-FlagForReviewItemButtonUnselected/);
+
+  // 학습 모드(study) 결과 화면에서 '다시 풀기' 클릭 -> study 모드 유지 및 checked 잠금 초기화 후 1번 문항 진입
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'result',
+      answers: { q1: ['D'] },
+      flags: { q1: true },
+      comments: { q1: '학습 메모' },
+      checked: { q1: true },
+    });
+  });
+  await page.getByRole('button', { name: '다시 풀기' }).click();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('item');
+  expect(await page.evaluate(() => window.__exam.state.mode)).toBe('study');
+  expect(await page.evaluate(() => window.__exam.state.index)).toBe(0);
+  expect(await page.evaluate(() => window.__exam.state.checked)).toEqual({});
+  await expect(page.locator('#abe-timer')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '정답 확인 (K)' })).toBeDisabled();
+  await expect(page.locator('input[id="q1.R.D"]')).toBeEnabled();
+  await expect(page.locator('input[id="q1.R.D"]')).not.toBeChecked();
+
+  // 3) '처음으로' 클릭 -> 저장된 진행 상태(localStorage)를 지우고 시작(모드 선택) 화면으로 복귀
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'result',
+      answers: { q1: ['D'] },
+      flags: { q1: true },
+      comments: {},
+      checked: { q1: true },
+    });
+  });
+  expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).not.toBeNull();
+
+  await page.getByRole('button', { name: '처음으로' }).click();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('start');
+  expect(await page.evaluate(() => window.__exam.state.mode)).toBe('exam');
+  expect(await page.evaluate(() => window.__exam.state.answers)).toEqual({});
+  expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBeNull();
+  await expect(page.locator('#abe-startScreen')).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // 새로고침해도 이어하기 대화상자가 뜨지 않고 깨끗한 시작 화면이 유지된다
+  await page.reload();
+  expect(await page.evaluate(() => window.__exam.state.phase)).toBe('start');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+
