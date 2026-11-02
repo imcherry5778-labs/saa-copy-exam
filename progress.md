@@ -179,3 +179,9 @@
 - `[M1-08]` 4개, M1-07 픽셀(q4, q5) 포함 `scripts/check.sh passing` 26/26 통과 후 passes=true.
 - 남은 문제: M1-09(q8, q9)는 RESOLVED된 `options[].compact` 구현이 남았다.
 - 다음 할 일: M1-09. `compact:true`면 보기 글자 셀의 빈 문단을 빼고, validate.mjs가 bool 검사를 하게 한다.
+
+## 2026-11-02 M1-09 (compact 구현)
+- `options[].compact:true`면 보기 글자 셀의 빈 탭 문단을 빼고 `.abe-compact`(높이 24px)를 붙인다(`optionRow`). `validate.mjs`는 `compact`가 있으면 bool인지 검사한다.
+- 체크박스는 원본 마진(`3.5px 3px 3px 4px`)으로 맞췄다(q8 461px 해결). 탭 줄 보기 바로 뒤에 compact 보기가 오면 행 간격이 10px 줄어드는 원본 동작(q9의 C→D)을 CSS `:has` 규칙으로 재현했다. 이 규칙은 캡처에서 추정한 것이다.
+- `[M1-09]` 2개, `[M1-02]`, 회귀 검사(passing) 30/30 통과 후 passes=true. M1 항목이 모두 끝났다.
+- 다음 할 일: `scripts/check.sh M1` 게이트 확인 후 M2-01로 진행한다.

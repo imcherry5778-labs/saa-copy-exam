@@ -18,6 +18,7 @@ export function validateExam(exam) {
     list.forEach((o, i) => {
       const p = `${path}[${i}]`;
       if (!isObj(o)) return err(p, '객체여야 한다');
+      if (o.compact !== undefined && typeof o.compact !== 'boolean') err(`${p}.compact`, 'bool이어야 한다');
       if (!isStr(o.id)) err(`${p}.id`, '비어 있지 않은 문자열이어야 한다');
       else if (ids.has(o.id)) err(`${p}.id`, `중복된 id '${o.id}'`);
       else if (pattern && !pattern.test(o.id)) err(`${p}.id`, `'${o.id}'는 허용되지 않는 id다`);

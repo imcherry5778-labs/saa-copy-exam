@@ -101,7 +101,7 @@
     return '<div class="abe-opt">' +
       '<div class="abe-opt-input"><label class="abe-parentLabel"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="response-' + esc(item.id) +
       '" id="' + id + '" value="' + esc(opt.id) + '" aria-label="' + esc(opt.id + '. ' + opt.ko) + '"' + (checked ? ' checked' : '') + '></label></div>' +
-      '<label class="abe-opt-letter" for="' + id + '" aria-hidden="true"><p>' + esc(opt.id) + '.</p><p><span class="tab"></span></p></label>' +
+      '<label class="abe-opt-letter' + (opt.compact ? ' abe-compact' : '') + '" for="' + id + '" aria-hidden="true"><p>' + esc(opt.id) + '.</p>' + (opt.compact ? '' : '<p><span class="tab"></span></p>') + '</label>' +
       '<label class="abe-opt-text" for="' + id + '" aria-hidden="true"><div class="abe-mat-html">' + esc(opt.ko) + '</div></label></div>';
   }
 
