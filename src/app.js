@@ -42,7 +42,7 @@
     var min = Math.floor(left / 60), sec = left % 60;
     var timerName = label('Timing.Property.HideTimer.value') + ' 남은 시간 ' + min + ' 분, ' + sec + ' 초';
     var counter = '문제 ' + (state.index + 1) + ' / ' + total;
-    var timerHtml = (state.mode === 'study' || state.phase === 'start') ? '' :
+    var timerHtml = (state.mode === 'study' || state.phase === 'start' || state.phase === 'result') ? '' :
       '<div id="abe-timer" role="timer"><button id="abe-TimeRemainingSectionButton" role="button">' +
       '<span id="abe-timerPlaceholder"></span><span id="accessibleTimerText" class="sr-only">' + esc(timerName) + '</span>' +
       '<div id="abe-timerContents" class="rc-fonts-Message' + (state.timerHidden ? ' off' : '') + '" aria-hidden="true">' +
@@ -73,7 +73,7 @@
   }
 
   function toolBar() {
-    if (state.phase === 'start') {
+    if (state.phase === 'start' || state.phase === 'result') {
       return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
         '<span id="Tool_bar" style="display:none">Tool bar</span>' +
         '<div id="abe-toolbar-tools"></div>' +
@@ -108,6 +108,15 @@
         '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-EndReviewButton" class="rc-fonts-Normal" data-accesskey="E" accesskey="E">' +
         keyLabel(label('UserInterface.Buttons.Button.EndReview.label')) + '</button></div></div>' +
         '<div id="abe-navigation-jump"></div></div>';
+    }
+    if (state.phase === 'result') {
+      return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' +
+        '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-AnswerReviewButton" class="rc-fonts-Normal" data-accesskey="I" accesskey="I">' +
+        keyLabel('오답 해설 (I)') + '</button></div></div>' +
+        '<div id="abe-navigation-jump" class="abe-has-prev">' +
+        '<div class="abe-inline-button-right" style="padding-left:5px"><button id="abe-RetryButton" class="rc-fonts-Normal">다시 풀기</button></div>' +
+        '<div class="abe-inline-button-right" style="padding-left:5px"><button id="abe-HomeButton" class="rc-fonts-Normal">처음으로</button></div>' +
+        '</div></div>';
     }
     var rev = state.fromReview ?
       '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-ReviewScreenButton" class="rc-fonts-Normal" data-accesskey="S" accesskey="S">' +
@@ -236,6 +245,82 @@
     if (item.type === 'ordering') return Array.isArray(ans) && ans.length === item.slots.length && item.slots.every(function (_, i) { return !!ans[i]; });
     if (item.type === 'matching') return !!(ans && typeof ans === 'object' && !Array.isArray(ans) && item.prompts.every(function (p) { return !!ans[p.id]; }));
     return false;
+  }
+
+  function isCorrect(item) {
+    if (!isComplete(item)) return false;
+    var ans = state.answers[item.id];
+    if (item.type === 'single') return ans[0] === item.answer[0];
+    if (item.type === 'multiple') {
+      if (ans.length !== item.answer.length) return false;
+      return item.answer.every(function (id) { return ans.indexOf(id) >= 0; });
+    }
+    if (item.type === 'ordering') {
+      if (ans.length !== item.answer.length) return false;
+      return item.answer.every(function (id, i) { return ans[i] === id; });
+    }
+    if (item.type === 'matching') {
+      return item.prompts.every(function (p) { return ans[p.id] === item.answer[p.id]; });
+    }
+    return false;
+  }
+
+  var DOMAINS = [
+    { domain: 1, name: '보안 아키텍처 설계', weight: '30%' },
+    { domain: 2, name: '복원력을 갖춘 아키텍처 설계', weight: '26%' },
+    { domain: 3, name: '고성능 아키텍처 설계', weight: '24%' },
+    { domain: 4, name: '비용에 최적화된 아키텍처 설계', weight: '20%' },
+  ];
+
+  function resultBody() {
+    var total = exam.items.length;
+    var correctCount = exam.items.filter(isCorrect).length;
+    var score = total > 0 ? Math.round(100 + 900 * (correctCount / total)) : 100;
+    var passed = score >= 720;
+    var statusCls = passed ? 'abe-reviewComplete abe-reviewCompleteLabel' : 'abe-reviewIncomplete abe-reviewIncompleteLabel';
+    var statusTxt = passed ? '합격' : '불합격';
+    var elapsedSec = Math.max(0, exam.durationMinutes * 60 - state.remainingSec);
+    var elapsedHtml = state.mode === 'exam' ?
+      '<div class="abe-resultMetric"><span>소요 시간</span><strong id="abe-resultElapsed">' + mmss(elapsedSec) + '</strong></div>' : '';
+
+    var domainRows = DOMAINS.map(function (d, idx) {
+      var last = idx === DOMAINS.length - 1;
+      var dItems = exam.items.filter(function (it) { return it.domain === d.domain; });
+      var dTotal = dItems.length;
+      var dCorrect = dItems.filter(isCorrect).length;
+      var pct = dTotal > 0 ? Math.round(100 * dCorrect / dTotal) : 0;
+      var ok = pct >= 70;
+      var dStCls = ok ? 'abe-reviewComplete abe-reviewCompleteLabel' : 'abe-reviewIncomplete abe-reviewIncompleteLabel';
+      var dStTxt = ok ? '역량 충족' : '개선 필요';
+      return '<tr class="abe-reviewTrClass abe-reviewItemEntry abe-reviewTableRowPosition" data-domain="' + d.domain + '">' +
+        '<th scope="row" class="abe-reviewTdClass abe-reviewScreenQuestionFont' + (last ? ' abe-reviewBottomLeftTableCorner' : '') + '">' + d.domain + '</th>' +
+        '<td class="abe-reviewTdClass abe-reviewScreenTitleFont">' + esc(d.name) + '</td>' +
+        '<td class="abe-reviewTdClass abe-reviewScreenTitleFont">' + d.weight + '</td>' +
+        '<td class="abe-reviewTdClass abe-reviewScreenTitleFont abe-domainAccuracy">' + pct + '%</td>' +
+        '<td class="abe-reviewTdClass' + (last ? ' abe-reviewBottomRightTableCorner' : '') + '"><div class="abe-reviewItemStatus ' + dStCls + ' abe-reviewScreenStatusFont"> ' + dStTxt + ' </div></td></tr>';
+    }).join('');
+
+    return '<div id="abe-resultScreen" class="abe-reviewScreen-2-0" tabindex="-1"><div class="abe-reviewScreenHeader">' +
+      '<div class="abe-reviewTypeTitle-2-0 rc-fonts-Normal"><h3 class="abe-reviewHeading"> 시험 결과 </h3></div></div>' +
+      '<div class="abe-scrollableReviewContent abe-reviewScreenTab" id="scrollableReviewContent" style="overflow: clip auto; height: unset;"><div class="abe-multipleSections abe-tabbedMultipleSection">' +
+      '<div id="abe-resultCard" class="abe-resultCard">' +
+      '<div class="abe-resultScoreRow"><span class="abe-resultScoreLabel">환산 점수</span><strong id="abe-resultScore" class="abe-resultScoreValue">' + score + '</strong><span class="abe-resultScoreMax"> / 1000</span>' +
+      '<div id="abe-resultStatus" class="abe-reviewItemStatus ' + statusCls + ' abe-reviewScreenStatusFont"> ' + statusTxt + ' </div></div>' +
+      '<div class="abe-resultMeta">' +
+      '<div class="abe-resultMetric"><span>합격 기준</span><strong>720</strong></div>' +
+      '<div class="abe-resultMetric"><span>정답 수</span><strong id="abe-resultCorrect">' + correctCount + ' / ' + total + '</strong></div>' +
+      elapsedHtml +
+      '</div></div>' +
+      '<div class="abe-reviewTable" id="abe-domainTable"><div class="abe-tbl-content">' +
+      '<table class="abe-reviewTableClass" cellpadding="0" cellspacing="0" border="0" aria-label="영역별 성적">' +
+      '<thead class="abe-reviewTheadClass"><tr class="abe-reviewTrClass abe-reviewThFonts">' +
+      '<th scope="col" class="abe-reviewTdClass abe-reviewTopLeftTableCorner" width="10%">영역</th>' +
+      '<th scope="col" class="abe-reviewTdClass" width="38%">이름</th>' +
+      '<th scope="col" class="abe-reviewTdClass" width="14%">비중</th>' +
+      '<th scope="col" class="abe-reviewTdClass" width="16%">정답률</th>' +
+      '<th scope="col" class="abe-reviewTdClass abe-reviewTopRightTableCorner" width="22%">수준</th>' +
+      '</tr></thead><tbody class="abe-reviewTbodyClass">' + domainRows + '</tbody></table></div></div>' +
+      '</div></div></div>';
   }
 
   function reviewTable(sec, entries, visible) {
@@ -394,7 +479,9 @@
       return;
     }
     if (state.phase === 'result') {
-      app.innerHTML = titleBar(item) + '<div id="abe-contentPane" class="Content rc-fonts-ItemText" role="main"><div id="abe-resultScreen">시험 결과</div></div>';
+      app.innerHTML = titleBar(item) + toolBar() +
+        '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main" style="background-color: rgb(242, 243, 245);"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
+        resultBody() + '</div></div>' + navBar();
       return;
     }
     app.innerHTML = titleBar(item) + toolBar() +

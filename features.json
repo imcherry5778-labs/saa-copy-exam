@@ -202,7 +202,7 @@
     "steps": [
       "[M2-09] 테스트: demo-fixture 정답 전체 입력 시 1000점 합격, 무응답 시 100점 불합격, 영역별 정답률 정확"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-10",
