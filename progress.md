@@ -293,3 +293,10 @@
 - `tests/dump.spec.mjs`에 `[M4-02]` 테스트 3개를 작성하여 검증했고, `scripts/check.sh passing`(70/70)을 통과해 `passes: true`로 변경했다.
 - 남은 문제: README 문서화(캡처 재생성, 빌드, 덤프 변환, 하네스 실행 방법, M4-03)가 남아 있다.
 - 다음 할 일: M4-03(`README 사용법`)을 진행한다.
+
+## 2026-11-03 M4-03
+- `README.md`를 작성하여 프로젝트 개요(Pearson VUE 데모 복제, 무의존성 단일 HTML 배포), 캡처 세션 재생성(`npm run capture`) 및 자산 추출(`node scripts/extract-assets.mjs`), 시험 JSON 검증(`npm run validate`) 및 단일·다중·전체 빌드(`npm run build`, `npm run build:all`), 덤프 변환 스킬의 8단계 절차 및 validate 수정 루프, 하네스 및 테스트 실행 방법(`check.sh passing`, `check.sh M<n>`, `playwright test`, `loop.sh`)과 자산 보안 주의사항을 체계적으로 문서화했다.
+- `tests/readme.spec.mjs`에 `[M4-03]` 테스트 5개를 작성해 features.json의 단계별 요구사항을 검증했고, `scripts/check.sh passing` 및 `scripts/check.sh M4`(75/75)를 모두 통과하여 `passes: true`로 변경했다. M4 마일스톤 및 전체 로드맵의 모든 기능이 완료되었다.
+- 남은 문제: 없음 (전체 마일스톤 완료).
+- 다음 할 일: 전체 기능 완료에 따른 최종 상태 점검 및 유지보수.
+

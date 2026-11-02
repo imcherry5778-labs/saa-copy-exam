@@ -276,6 +276,6 @@
     "steps": [
       "캡처 재생성, 빌드, 덤프 변환, 하네스 실행 방법"
     ],
-    "passes": false
+    "passes": true
   }
 ]
