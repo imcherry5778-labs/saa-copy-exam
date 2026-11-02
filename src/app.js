@@ -10,7 +10,7 @@
   var state = {
     phase: 'item', mode: 'exam', index: 0, fromReview: false,
     answers: {}, flags: {}, comments: {}, checked: {},
-    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false,
+    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false,
   };
   var frozen = false;
 
@@ -174,16 +174,32 @@
       String(item.stem.en).split(/\n\n/).map(function (p) { return '<p lang="en">' + esc(p) + '</p>'; }).join('') + opts + '</div></div></div>';
   }
 
+  // 설명 대화상자: TinyMCE 대신 textarea를 같은 모양의 상자에 넣는다
+  function commentDialog(item) {
+    var save = label('UserInterface.Buttons.Button.Save.label'), cancel = label('UserInterface.Buttons.Button.Cancel.label');
+    var title = label('UserInterface.Buttons.Button.Comment.label');
+    return '<div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front rc-fonts-Message Primary ui-dialog-buttons abe-comment-dialog" aria-labelledby="abe-cmt-title">' +
+      '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix"><span id="abe-cmt-title" class="ui-dialog-title rc-fonts-Message"><span class="abe-CommentImage"></span>' +
+      '<span class="abe-ui-exam-dialog-title rc-fonts-Message">' + esc(title.replace(/\s*\(.\)$/, '')) + '</span></span></div>' +
+      '<div id="abe-commentWindow" class="ui-dialog-content ui-widget-content Content rc-fonts-TextEntry"><textarea id="abe-commentTxt" class="abe-comment-text rc-fonts-TextEntry" aria-label="' +
+      esc(title) + '">' + esc(state.comments[item.id] || '') + '</textarea></div>' +
+      '<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"><div class="ui-dialog-buttonset">' +
+      '<button type="button" id="SAVE" accesskey="S" aria-label="' + esc(save) + '" class="ui-button ui-corner-all ui-widget rc-fonts-Message">' + keyLabel(save) + '</button>' +
+      '<button type="button" id="CANCEL" accesskey="C" aria-label="' + esc(cancel) + '" class="ui-button ui-corner-all ui-widget rc-fonts-Message">' + keyLabel(cancel) + '</button>' +
+      '</div></div></div>';
+  }
+
   function render() {
     var item = exam.items[state.index];
     app.innerHTML = titleBar(item) + toolBar() +
       '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
-      '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() + (state.english ? englishDialog(item) : '');
+      '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() + (state.english ? englishDialog(item) : '') + (state.commentOpen ? commentDialog(item) : '');
   }
 
   function go(i) {
     state.index = Math.max(0, Math.min(exam.items.length - 1, i));
     state.english = false;
+    state.commentOpen = false;
     render();
   }
 
@@ -199,6 +215,12 @@
     var t = e.target.closest('button, input');
     if (!t) return;
     if (t.id === 'exhibit1' || t.closest('#exhibit1')) { state.english = true; render(); }
+    else if (t.id === 'abe-CommentButton') { state.commentOpen = true; render(); }
+    else if (t.id === 'SAVE' || t.id === 'CANCEL') {
+      var cid = exam.items[state.index].id, ta = document.getElementById('abe-commentTxt');
+      if (t.id === 'SAVE') { if (ta.value) state.comments[cid] = ta.value; else delete state.comments[cid]; }
+      state.commentOpen = false; render();
+    }
     else if (t.id === 'abe-eng-close') { state.english = false; render(); }
     else if (t.id === 'abe-NextButton') go(state.index + 1);
     else if (t.id === 'abe-PreviousButton') go(state.index - 1);

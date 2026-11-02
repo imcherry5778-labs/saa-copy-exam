@@ -9,7 +9,7 @@
   { "id": "M1-08", "milestone": "M1", "title": "matching 문항", "steps": ["[M1-08] visual: ko-05-q6, ko-05-q7 일치"], "passes": true },
   { "id": "M1-09", "milestone": "M1", "title": "case study 머리말", "steps": ["[M1-09] visual: ko-05-q8, ko-05-q9 일치"], "passes": true },
   { "id": "M1-10", "milestone": "M1", "title": "English 팝업", "steps": ["[M1-10] visual: ko-04-q1-english 일치", "닫기 X로 닫힘"], "passes": true },
-  { "id": "M1-11", "milestone": "M1", "title": "설명(Comment) 대화상자", "steps": ["[M1-11] visual: ko-04-q1-comment 일치", "저장 시 문항별 보관, 취소 시 변경 폐기"], "passes": false },
+  { "id": "M1-11", "milestone": "M1", "title": "설명(Comment) 대화상자", "steps": ["[M1-11] visual: ko-04-q1-comment 일치", "저장 시 문항별 보관, 취소 시 변경 폐기"], "passes": true },
   { "id": "M1-12", "milestone": "M1", "title": "색상 구성표 드롭다운(기본 테마만 동작) + accesskey", "steps": ["목록 12항목(한국어 라벨은 strings.ko.json)", "Alt+N/P/F/M 동작", "[M1-12] 테스트 통과"], "passes": false },
 
   { "id": "M2-01", "milestone": "M2", "title": "이전/다음 탐색, 마지막 문항 다음 → Review", "steps": ["[M2-01] 테스트 통과"], "passes": false },
