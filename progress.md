@@ -8,3 +8,9 @@
 - 하네스를 구성했다: spec, features.json(28개), visual.spec.mjs(18개 기준 이미지), check.sh, guard.mjs, loop.sh.
 - 다음 할 일: `./loop.sh M1`부터 시작한다. 첫 기능은 M1-01(자산 추출)이다.
 - 확인한 사항: 캡처 DOM을 헤드리스 Chrome으로 다시 렌더링한 결과 `ko-04-q1`이 허용 오차 안에서 일치했다. 픽셀 비교 방식을 쓸 수 있다. 이 PC에서 `Batang`과 `Tahoma`는 fontconfig를 거쳐 `Noto Sans CJK KR`로 렌더링된다. CSS의 font-family는 캡처의 computed 값 그대로 둔다.
+
+## 2026-11-02 M1-01
+- `scripts/extract-assets.mjs`를 작성했다. capture/raw의 CSS, 한국어/영어 스프라이트·아이콘을 해시 접미사를 떼고 vendor/로 복사하고, getMessages의 driverProperties를 `strings.ko.json`/`strings.en.json`으로 키 그대로 저장한다.
+- `tests/assets.spec.mjs`에 `[M1-01]` 테스트를 추가했고 통과했다. 회귀 검사(passing)도 통과했다.
+- 남은 문제: 없음.
+- 다음 할 일: M1-02(`scripts/validate.mjs`). exams/sample.json과 demo-fixture.json이 통과해야 한다.
