@@ -172,3 +172,10 @@
 - RESOLVED: M1-09 — 사용자 결정에 따라 보기별 표시 힌트 `options[].compact`(기본 false)를 스펙 4절에 추가했다. 기본 보기 행은 보기 글자 셀 안에 빈 문단이 하나 더 있는 원본 구조(48px)다. `compact:true`면 빈 문단을 넣지 않는다(24px). `exams/demo-fixture.json`에는 이미 반영했다(q8은 모든 보기, q9는 A·B·D). `scripts/validate.mjs`는 이 필드를 받아들이고, 값이 있으면 bool인지 검사하게 고친다(`[M1-02]` 테스트 유지).
 - RESOLVED: M1-08 — 플래너 승인. ordering과 matching 행을 원본 DOM(`capture/dom/ko-05-q6.html`, `ko-05-q4.html`)처럼 `<p><span style="font-family:batang;font-size:12pt">라벨&nbsp;&nbsp;&nbsp;<드롭다운></span></p>` 구조로 바꾸고, 행 사이에는 `<p><span>&nbsp;</span></p>` 빈 행을 넣는다. 고정 gap과 min-height 보정은 버린다. M1-07(`ko-05-q4`, `ko-05-q5`)이 회귀 검사에서 계속 통과해야 한다. M1-07의 원본 구조도 같다면 함께 옮긴다.
 - 하네스 변경: 남은 항목이 모두 BLOCKED 또는 QUESTION이면 에이전트가 `NO-ACTIONABLE-FEATURE`를 출력하고, 루프는 그 자리에서 대기 상태로 멈춘다(지난 실행에서는 반복 4회를 이 확인에만 썼다).
+
+## 2026-11-02 M1-08 (RESOLVED 방침대로 p/span 구조 복제)
+- ordering/matching 행을 원본처럼 `<p><span>라벨&nbsp;…<드롭다운></span></p>` + `<p><span>&nbsp;</span></p>` 빈 행으로 바꿨다(`slotP`). 고정 gap/min-height는 버렸다. 라벨 글꼴은 상속(Batang → Noto Sans CJK KR)이어야 원본 글자 폭과 맞는다(`font-family:batang` 단독이면 폭이 틀어진다).
+- 행 pitch 50.75px는 p line-height(행 27.375, 빈 행 23.45)로, 시작 소수 위치는 choice-list margin과 첫 행 `top` 보정으로 맞췄다. 소수 보정값은 0.1px 단위 스윕으로 찾았다.
+- `[M1-08]` 4개, M1-07 픽셀(q4, q5) 포함 `scripts/check.sh passing` 26/26 통과 후 passes=true.
+- 남은 문제: M1-09(q8, q9)는 RESOLVED된 `options[].compact` 구현이 남았다.
+- 다음 할 일: M1-09. `compact:true`면 보기 글자 셀의 빈 문단을 빼고, validate.mjs가 bool 검사를 하게 한다.

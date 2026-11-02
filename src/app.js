@@ -121,16 +121,21 @@
       '<select class="abe-drop_down" data-slot="' + i + '" aria-label="' + esc(name) + '">' + opts + '</select></span></span>';
   }
 
+  // 원본 구조: 행마다 <p><span batang 12pt>…</span></p>, 행 사이에 &nbsp; 빈 행.
+  function slotP(inner) {
+    return '<p' + (inner === '&nbsp;' ? '' : ' class="abe-slot"') + '><span style="font-family:Batang,&quot;Noto Sans CJK KR&quot;,sans-serif;font-size:12pt">' + inner + '</span></p>';
+  }
+
   function orderingBody(item) {
     var sel = state.answers[item.id] || [];
     var html = '<div class="abe-ordering">';
     html += '<ul class="abe-choice-list">' + item.choices.map(function (c) { return '<li> ' + esc(c.ko) + '</li>'; }).join('') + '</ul>';
-    html += '<div class="abe-slot-gap">&nbsp;</div>';
+    html += slotP('&nbsp;');
     item.slots.forEach(function (sl, i) {
       var lab = sl.label ? esc(sl.label.ko) : '';
       var dd = slotSelect(item, i, sel[i] || null, sl.label ? sl.label.ko : '슬롯 ' + (i + 1));
-      html += '<div class="abe-slot">' + (sl.side === 'left' ? (lab ? lab + '&nbsp;&nbsp;&nbsp;&nbsp;' : '') + dd : dd + (lab ? '&nbsp;' + lab : '')) + '</div>';
-      if (i < item.slots.length - 1) html += '<div class="abe-slot-gap">&nbsp;</div>';
+      html += slotP(sl.side === 'left' ? (lab ? lab + '&nbsp;&nbsp;&nbsp;&nbsp;' : '') + dd : dd + (lab ? '&nbsp;' + lab : ''));
+      if (i < item.slots.length - 1) html += slotP('&nbsp;');
     });
     return html + '</div>';
   }
@@ -141,8 +146,8 @@
     var html = '<div class="abe-ordering">';
     html += '<ul class="abe-choice-list">' + item.choices.map(function (c) { return '<li> ' + esc(c.ko) + '</li>'; }).join('') + '</ul>';
     item.prompts.forEach(function (pr, i) {
-      html += '<div class="abe-slot">' + esc(pr.ko) + '&nbsp;&nbsp; ' + slotSelect(item, i, sel[pr.id] || null, pr.ko) + '</div>';
-      if (i < item.prompts.length - 1) html += '<div class="abe-slot-gap">&nbsp;</div>';
+      html += slotP(esc(pr.ko) + '&nbsp;&nbsp;&nbsp;' + slotSelect(item, i, sel[pr.id] || null, pr.ko));
+      if (i < item.prompts.length - 1) html += slotP('&nbsp;');
     });
     return html + '</div>';
   }

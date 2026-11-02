@@ -78,7 +78,7 @@
     "steps": [
       "[M1-08] visual: ko-05-q6, ko-05-q7 일치"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M1-09",

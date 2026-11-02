@@ -50,9 +50,6 @@ body { margin: 0; }
 .abe-stem.abe-stem-ordering { padding-bottom: 0; }
 .abe-choice-list { margin: 16px 0 16px 10px; padding: 0 0 0 40px; }
 .abe-choice-list li { line-height: 24px; }
-.abe-slot-gap { height: 24px; }
-.abe-slot { min-height: 27px; }
-.abe-slot .ui-selectmenu-button { top: 2.3px; }
 .ui-selectmenu-button { position: relative; display: inline-block; box-sizing: border-box; margin: 0 1.6px 0 0; padding: 0 12px 0 0; border: 1px solid #000; background: #fff; color: #000; line-height: 22.4px; cursor: default; }
 .ui-selectmenu-button .ui-selectmenu-text { display: block; height: 22.3906px; padding-left: 5px; white-space: nowrap; }
 .ui-selectmenu-button .ui-icon { position: absolute; top: 11.19px; right: 0; width: 9px; height: 12px; margin: -5px 0 0; background: url(@vendor/kor/contrastDownArrow.png) no-repeat; }
@@ -95,3 +92,23 @@ div.abe-eng-opt:first-of-type { margin-top: 23px; }
 .abe-colorSchemeMenu { position: absolute; top: 28px; left: 3px; z-index: 100; width: 190px; margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid #000; text-align: left; }
 .abe-colorSchemeMenu li { padding: 3px 5px; font-size: 16px; color: #000; cursor: pointer; }
 .abe-colorSchemeMenu li.ui-state-active, .abe-colorSchemeMenu li:hover { color: #fff; background: #4678BE; }
+#abe-contentPane .abe-ordering p { margin: 0; line-height: 25.375px; }
+#abe-contentPane .abe-ordering p:not(.abe-slot) { line-height: 23.375px; }
+#abe-contentPane .abe-ordering p.abe-slot { line-height: 27.375px; }
+#abe-contentPane .abe-ordering .abe-choice-list { margin-bottom: 17px; }
+.abe-slot > span { position: relative; top: -2px; }
+.abe-slot .ui-selectmenu-button { top: 2px; }
+.abe-slot .ui-selectmenu-button { top: 2.4px; }
+#abe-contentPane .abe-ordering .abe-choice-list + p:not(.abe-slot) { line-height: 23.775px; }
+#abe-contentPane .abe-ordering .abe-choice-list { margin-bottom: 17.11px; }
+#abe-contentPane .abe-ordering .abe-choice-list + p:not(.abe-slot) { line-height: 23.665px; }
+#abe-contentPane .abe-ordering .abe-choice-list { margin-bottom: 17px; }
+#abe-contentPane .abe-ordering .abe-choice-list + p:not(.abe-slot) { line-height: 23.775px; }
+.abe-slot > span { top: -1.8px; }
+.abe-slot .ui-selectmenu-button { top: 2.2px; }
+.abe-slot > span { top: -1.7px; }
+.abe-slot .ui-selectmenu-button { top: 2.4px; }
+#abe-contentPane .abe-ordering .abe-choice-list + p.abe-slot { margin-top: -0.15px; }
+#abe-contentPane .abe-ordering p:not(.abe-slot) { line-height: 23.45px; }
+#abe-contentPane .abe-ordering .abe-choice-list + p.abe-slot { margin-top: 0; position: relative; top: -0.4px; }
+#abe-contentPane .abe-ordering .abe-choice-list + p.abe-slot { margin-top: -0.15px; top: -0.3px; }
