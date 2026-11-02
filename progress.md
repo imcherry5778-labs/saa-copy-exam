@@ -53,3 +53,9 @@
 - `ko-05-q4`, `ko-05-q5` 픽셀 테스트와 `tests/ordering.spec.mjs`의 `[M1-07]` 테스트 2개가 통과했고 회귀 검사(passing)도 통과했다.
 - 남은 문제: 네이티브 `<select>` 목록이 열린 모양은 기준(jQuery UI 메뉴)과 다르다. 기준 이미지가 없어 픽셀 비교 대상은 아니다.
 - 다음 할 일: M1-08(matching 문항, `ko-05-q6`, `ko-05-q7` 픽셀 일치). 드롭다운 컴포넌트(`slotSelect`)를 재사용할 수 있다.
+
+## 2026-11-02 M1-08
+- `src/app.js`에 matching 렌더링(범주 글머리표 + prompt 라벨 + 드롭다운)과 선택 저장(`state.answers[id]`는 `{promptId: choiceId}`, 빈 값 선택 시 키 삭제)을 구현했다. `slotSelect`는 aria 라벨을 인자로 받게 바꿔 재사용한다.
+- 기준 DOM에 맞추려고 첫 행 위 여백을 없애고 라벨–드롭다운 간격을 `&nbsp;&nbsp; `로 했다. `ko-05-q6`, `ko-05-q7` 픽셀 테스트와 `tests/matching.spec.mjs`의 `[M1-08]` 테스트 2개가 통과했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: 없음. 개별 `playwright test`는 dist를 미리 빌드해야 한다(check.sh는 자동 빌드).
+- 다음 할 일: M1-09(case study 머리말, `ko-05-q8`, `ko-05-q9` 픽셀 일치).
