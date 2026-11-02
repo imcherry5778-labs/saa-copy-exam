@@ -7,12 +7,91 @@
   var app = document.getElementById('app');
   app.setAttribute('data-exam-id', exam.id);
 
+  var STORAGE_KEY = 'saa-mock:' + exam.id;
   var state = {
     phase: 'start', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
     answers: {}, flags: {}, comments: {}, checked: {},
-    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false, endReviewStep: 0,
+    remainingSec: exam.durationMinutes * 60, startedAt: null,
+    timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false, endReviewStep: 0,
+    resumeSaved: null,
   };
   var frozen = false;
+  var tickCount = 0;
+
+  function saveState() {
+    if (state.phase === 'start') return;
+    if (!state.startedAt) state.startedAt = Date.now();
+    tickCount = 0;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        mode: state.mode,
+        index: state.index,
+        answers: state.answers,
+        flags: state.flags,
+        comments: state.comments,
+        checked: state.checked,
+        remainingSec: state.remainingSec,
+        startedAt: state.startedAt,
+        phase: state.phase,
+      }));
+    } catch (e) {}
+  }
+
+  function clearSavedState() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function readSavedState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || parsed.phase === 'start') return null;
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function applySavedState(saved) {
+    state.mode = saved.mode || 'exam';
+    state.index = typeof saved.index === 'number' ? saved.index : 0;
+    state.answers = saved.answers || {};
+    state.flags = saved.flags || {};
+    state.comments = saved.comments || {};
+    state.checked = saved.checked || {};
+    state.remainingSec = typeof saved.remainingSec === 'number' ? saved.remainingSec : exam.durationMinutes * 60;
+    state.startedAt = saved.startedAt || Date.now();
+    state.phase = saved.phase || 'item';
+    state.fromReview = false;
+    state.reviewList = null;
+    state.reviewTab = 'All';
+    state.english = false;
+    state.commentOpen = false;
+    state.instructionsOpen = false;
+    state.endReviewStep = 0;
+  }
+
+  function resetState() {
+    state.phase = 'start';
+    state.mode = 'exam';
+    state.index = 0;
+    state.fromReview = false;
+    state.reviewTab = 'All';
+    state.reviewList = null;
+    state.answers = {};
+    state.flags = {};
+    state.comments = {};
+    state.checked = {};
+    state.remainingSec = exam.durationMinutes * 60;
+    state.startedAt = null;
+    state.english = false;
+    state.commentOpen = false;
+    state.instructionsOpen = false;
+    state.endReviewStep = 0;
+  }
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -447,6 +526,28 @@
       '</div></div></div><div class="ui-widget-overlay ui-front" style="z-index: 100;"></div>';
   }
 
+  function resumeDialog() {
+    var msgId = 'ResumeExamDialog';
+    var titleId = 'ui-id-resume';
+    var title = '이어하기';
+    var msgHtml = '<div><p>' + esc('진행 중인 시험이 있습니다. 이어서 진행하시겠습니까?') + '</p></div>';
+    var alertType = label('UserInterface.Messages.Message.DialogTypeAlert.text');
+    var yes = label('UserInterface.Buttons.Button.Yes.label');
+    var no = label('UserInterface.Buttons.Button.No.label');
+    return '<div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front modal ui-dialog-buttons ui-draggable Primary abe-end-review-dialog abe-resume-dialog" aria-describedby="' + msgId + '" aria-labelledby="' + titleId + '" style="height: auto; width: 477.6px; top: 428.428px; left: 717.006px; z-index: 2147483257;">' +
+      '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">' +
+      '<span id="' + titleId + '" class="ui-dialog-title rc-fonts-Message" tabindex="-1">' + esc(title) + '</span>' +
+      '<button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close" id="' + msgId + '-closeBtn" style="display: none;"><span class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space"> </span>Close</button></div>' +
+      '<div id="' + msgId + '" style="overflow: hidden auto; width: auto; min-height: 53.85px; max-height: none; height: auto;" class="abe-WarningImage alert-dialog ui-dialog-content ui-widget-content rc-fonts-ItemText">' +
+      '<span class="sr-only">' + esc(alertType) + '. </span>' +
+      '<div class="abe-dialogDiv"><div class="abe-infoDiv"></div>' +
+      '<p tabindex="-1" class="abe-messageText rc-fonts-Message" data-msg-html="' + esc(msgHtml) + '"></p></div></div>' +
+      '<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"><div class="ui-dialog-buttonset position-center">' +
+      '<button type="button" id="Yes" class="ui-button ui-corner-all ui-widget rc-fonts-Message" accesskey="y">' + keyLabel(yes) + '</button>' +
+      '<button type="button" id="No" class="ui-button ui-corner-all ui-widget rc-fonts-Message" accesskey="n">' + keyLabel(no) + '</button>' +
+      '</div></div></div><div class="ui-widget-overlay ui-front" style="z-index: 100;"></div>';
+  }
+
   function startBody() {
     var examLabel = '시험 모드 (' + exam.durationMinutes + '분, 타이머)';
     var studyLabel = '학습 모드 (타이머 없음, 문항별 정답 확인)';
@@ -464,10 +565,13 @@
 
   function render() {
     var item = exam.items[state.index];
+    saveState();
     if (state.phase === 'start') {
       app.innerHTML = titleBar(item) + toolBar() +
         '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
-        '<div class="abe-content-root">' + startBody() + '</div></div></div>' + navBar();
+        '<div class="abe-content-root">' + startBody() + '</div></div></div>' + navBar() + (state.resumeSaved ? resumeDialog() : '');
+      var rMsgP = app.querySelector('.abe-messageText[data-msg-html]');
+      if (rMsgP) rMsgP.innerHTML = rMsgP.getAttribute('data-msg-html');
       return;
     }
     if (state.phase === 'review') {
@@ -502,6 +606,7 @@
   function tick() {
     if (frozen || state.mode !== 'exam' || (state.phase !== 'item' && state.phase !== 'review')) return;
     state.remainingSec = Math.max(0, state.remainingSec - 1);
+    tickCount++;
     if (state.remainingSec <= 0) {
       state.phase = 'result';
       state.english = false;
@@ -511,6 +616,9 @@
       state.schemeOpen = false;
       render();
       return;
+    }
+    if (tickCount >= 5) {
+      saveState();
     }
     var el = document.getElementById('timeRemaining');
     if (el) el.textContent = mmss(state.remainingSec);
@@ -591,6 +699,20 @@
     if (t.id === 'abe-ReviewInstructionsButton') { state.instructionsOpen = true; render(); return; }
     if (t.id === 'Close') { state.instructionsOpen = false; render(); return; }
     if (t.id === 'abe-EndReviewButton') { state.instructionsOpen = false; state.endReviewStep = 1; render(); return; }
+    if (t.id === 'Yes' && state.resumeSaved) {
+      var saved = state.resumeSaved;
+      state.resumeSaved = null;
+      applySavedState(saved);
+      render();
+      return;
+    }
+    if (t.id === 'No' && state.resumeSaved) {
+      state.resumeSaved = null;
+      clearSavedState();
+      resetState();
+      render();
+      return;
+    }
     if (t.id === 'Yes' && state.endReviewStep) {
       if (state.endReviewStep === 1) { state.endReviewStep = 2; render(); }
       else { state.endReviewStep = 0; state.phase = 'result'; render(); }
@@ -649,6 +771,7 @@
     else if (t.id === 'abe-eng-close') { state.english = false; render(); }
     else if (t.id === 'abe-NextButton') {
       if (state.phase === 'start') {
+        state.resumeSaved = null;
         state.phase = 'item';
         state.fromReview = false;
         state.reviewList = null;
@@ -721,8 +844,13 @@
     if (t.type === 'radio') cur = [t.value];
     else cur = t.checked ? cur.concat(t.value) : cur.filter(function (v) { return v !== t.value; });
     state.answers[qid] = cur;
+    saveState();
   });
 
+  var initialSaved = readSavedState();
+  if (initialSaved) {
+    state.resumeSaved = initialSaved;
+  }
   render();
 
   if (/[?&]test=1/.test(location.search)) {
@@ -734,7 +862,9 @@
         state.reviewList = null;
         state.instructionsOpen = false;
         state.endReviewStep = 0;
+        state.resumeSaved = null;
         for (var k in s) state[k] = s[k];
+        if (state.phase === 'start') clearSavedState();
         render();
       },
       setRemaining: function (sec) { frozen = true; state.remainingSec = sec; render(); },
