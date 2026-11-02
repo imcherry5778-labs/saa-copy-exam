@@ -40,7 +40,7 @@
       "[M1-04] visual: ko-04-q1 일치",
       "타이머·카운터 클릭 시 숨김/표시"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M1-05",

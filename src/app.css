@@ -35,8 +35,11 @@ body { margin: 0; }
 .abe-english-row { height: 56px; }
 .abe-stem { margin-top: 16px; padding: 0 0 10px; }
 .abe-opt { display: flex; align-items: flex-start; padding: 10px 0; }
-.abe-opt-input { width: 30px; flex: none; margin-top: 2px; height: 26px; }
-.abe-opt-input input { margin: 8px 3px 3px 5px; }
+.abe-opt-input { width: 30px; flex: none; margin-top: 0; height: 26px; }
+.abe-opt-input input { margin: 4.5px 3px 3px 5px; }
+.abe-opt-input label { margin-top: 2px; }
+.abe-opt:last-child .abe-opt-letter, .abe-opt:last-child .abe-opt-text { margin-top: 0; }
+#abe-navigation-jump { padding-right: 10px; }
 .abe-opt-letter { width: 48px; flex: none; margin-top: 2px; height: 48px; }
 .abe-opt-letter p { margin: 0; }
 .abe-opt-text { margin-top: 2px; }
