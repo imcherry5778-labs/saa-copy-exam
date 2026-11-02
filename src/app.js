@@ -380,10 +380,25 @@
   }
 
   function tick() {
-    if (frozen || state.mode === 'study' || state.phase === 'start' || state.phase === 'result') return;
+    if (frozen || state.mode !== 'exam' || (state.phase !== 'item' && state.phase !== 'review')) return;
     state.remainingSec = Math.max(0, state.remainingSec - 1);
+    if (state.remainingSec <= 0) {
+      state.phase = 'result';
+      state.english = false;
+      state.commentOpen = false;
+      state.instructionsOpen = false;
+      state.endReviewStep = 0;
+      state.schemeOpen = false;
+      render();
+      return;
+    }
     var el = document.getElementById('timeRemaining');
     if (el) el.textContent = mmss(state.remainingSec);
+    var acc = document.getElementById('accessibleTimerText');
+    if (acc) {
+      var min = Math.floor(state.remainingSec / 60), sec = state.remainingSec % 60;
+      acc.textContent = label('Timing.Property.HideTimer.value') + ' 남은 시간 ' + min + ' 분, ' + sec + ' 초';
+    }
   }
   setInterval(tick, 1000);
 
@@ -580,6 +595,7 @@
   if (/[?&]test=1/.test(location.search)) {
     window.__exam = {
       load: function (s) {
+        frozen = false;
         state.reviewTab = 'All';
         state.fromReview = false;
         state.reviewList = null;

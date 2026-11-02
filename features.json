@@ -184,7 +184,7 @@
     "steps": [
       "[M2-07] 테스트 통과"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-08",
