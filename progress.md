@@ -34,3 +34,9 @@
 - `ko-04-q1` 픽셀 테스트와 `tests/chrome.spec.mjs`의 `[M1-04]` 테스트 3개가 통과했고 회귀 검사(passing)도 통과했다.
 - 남은 문제: 선택·플래그 상태 반영은 아직 없다(옵션 클릭 이벤트 없음). 플래그 버튼의 선택 상태 아이콘은 M1-05에서 확인한다.
 - 다음 할 일: M1-05(응답 선택과 플래그 토글, `ko-04-q1-selected-flagged` 픽셀 일치).
+
+## 2026-11-02 M1-05
+- `src/app.js`에 응답 선택(change 이벤트 → `state.answers`, radio는 단일 값, checkbox는 추가/제거)과 플래그 토글(클릭 → `state.flags`, 재렌더)을 구현했다.
+- `tests/response.spec.mjs`에 `[M1-05]` 테스트 2개를 추가했다. `ko-04-q1-selected-flagged` 픽셀 테스트는 M1-04 크롬만으로 이미 일치했다. 통과했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: checkbox는 초과 선택을 제한 없이 허용한다(데모와 같은지는 M1-06에서 확인).
+- 다음 할 일: M1-06(multiple 문항, `ko-05-q2` 픽셀 일치).

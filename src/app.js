@@ -138,6 +138,21 @@
     else if (t.id === 'abe-PreviousButton') go(state.index - 1);
     else if (t.id === 'abe-TimeRemainingSectionButton') { state.timerHidden = !state.timerHidden; render(); }
     else if (t.id === 'abe-ItemOrdinalKnownButton') { state.counterHidden = !state.counterHidden; render(); }
+    else if (t.id === 'abe-FlagForReviewItemButton') {
+      var fid = exam.items[state.index].id;
+      if (state.flags[fid]) delete state.flags[fid]; else state.flags[fid] = true;
+      render();
+    }
+  });
+
+  app.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || t.tagName !== 'INPUT' || !/^response-/.test(t.name)) return;
+    var qid = t.name.slice('response-'.length);
+    var cur = state.answers[qid] || [];
+    if (t.type === 'radio') cur = [t.value];
+    else cur = t.checked ? cur.concat(t.value) : cur.filter(function (v) { return v !== t.value; });
+    state.answers[qid] = cur;
   });
 
   render();
