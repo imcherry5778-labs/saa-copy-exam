@@ -185,3 +185,9 @@
 - 체크박스는 원본 마진(`3.5px 3px 3px 4px`)으로 맞췄다(q8 461px 해결). 탭 줄 보기 바로 뒤에 compact 보기가 오면 행 간격이 10px 줄어드는 원본 동작(q9의 C→D)을 CSS `:has` 규칙으로 재현했다. 이 규칙은 캡처에서 추정한 것이다.
 - `[M1-09]` 2개, `[M1-02]`, 회귀 검사(passing) 30/30 통과 후 passes=true. M1 항목이 모두 끝났다.
 - 다음 할 일: `scripts/check.sh M1` 게이트 확인 후 M2-01로 진행한다.
+
+## 2026-11-02 M2-01
+- 마지막 문항에서 `다음 (N)` 클릭 시 `state.phase`를 `'review'`로 전환하고 Review 화면 기본 크롬(검토 제목, `지침 (R)`, `검토 종료 (E)`, 문제 카운터 숨김)을 렌더링하게 구현했다.
+- `tests/navigation.spec.mjs`에 `[M2-01]` 테스트 2개(이전/다음 이동, 마지막 문항 다음 → Review)를 추가하고 회귀 검사(34/34) 통과 후 `passes: true`로 변경했다.
+- 남은 문제: Review 화면의 본문 표·탭 필터 및 픽셀 일치는 M2-02에서 구현해야 한다.
+- 다음 할 일: M2-02(`Review 화면과 탭 필터`, `ko-06-review`, `ko-06-review-incomplete-tab`, `ko-06-review-flagged-tab` 픽셀 일치)를 진행한다.

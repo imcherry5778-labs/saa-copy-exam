@@ -53,7 +53,7 @@
       '<div id="abe-titlebar-title" class="rc-fonts-Large" tabindex="-1"><span id="abe-assessment-title">' + esc(exam.title) +
       '</span>\n - <span id="abe-assessment-candidate">' + esc(exam.candidate) + '</span></div>' +
       '<div id="abe-titlebar-info">' + timerHtml +
-      '<div id="abe-itemCounter" role="heading" aria-level="1"><button id="abe-ItemOrdinalKnownButton" role="button" aria-label="' +
+      '<div id="abe-itemCounter" role="heading" aria-level="1"' + (state.phase !== 'item' ? ' style="display:none"' : '') + '><button id="abe-ItemOrdinalKnownButton" role="button" aria-label="' +
       esc(label('UserInterface.ContextHelp.Property.ItemOrdinalHide.value') + ' ' + counter) + '"><div class="abe-hidden-shim"></div>' +
       '<div id="abe-itemCounterWrapper" class="' + (state.counterHidden ? 'off' : '') + '" aria-hidden="true"><span id="abe-ItemOrdinalKnown" class="rc-fonts-Message">문제 <span id="itemOrdinal">' +
       (state.index + 1) + '</span> / <span id="itemCardinal">' + total + '</span></span></div></button></div></div></div>';
@@ -73,6 +73,14 @@
   }
 
   function toolBar() {
+    if (state.phase === 'review') {
+      return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
+        '<span id="Tool_bar" style="display:none">Tool bar</span>' +
+        '<div id="abe-toolbar-tools"><div class="abe-icon-left" style="padding-left:5px">' +
+        '<button id="abe-ReviewInstructionsButton" class="rc-fonts-Normal" data-accesskey="R" accesskey="R">' +
+        keyLabel(label('UserInterface.Buttons.Button.ReviewInstructions.label')) + '</button></div></div>' +
+        '<div id="abe-toolbar-flags">' + colorSchemes() + '</div></div>';
+    }
     var flagged = !!state.flags[exam.items[state.index].id];
     return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
       '<span id="Tool_bar" style="display:none">Tool bar</span>' +
@@ -83,6 +91,12 @@
   }
 
   function navBar() {
+    if (state.phase === 'review') {
+      return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' +
+        '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-EndReviewButton" class="rc-fonts-Normal" data-accesskey="E" accesskey="E">' +
+        keyLabel(label('UserInterface.Buttons.Button.EndReview.label')) + '</button></div></div>' +
+        '<div id="abe-navigation-jump"></div></div>';
+    }
     var prev = state.index > 0 ?
       '<div class="abe-inline-button-right abe-icon-left" style="padding-left:5px"><button id="abe-PreviousButton" class="rc-fonts-Normal" data-accesskey="P" accesskey="P">' +
       keyLabel(label('UserInterface.Buttons.Button.Previous.label')) + '</button></div>' : '';
@@ -199,8 +213,23 @@
       '</div></div></div>';
   }
 
+  function reviewBody() {
+    var title = label('UserInterface.ReviewScreen2.0.Property.ReviewTitle2.0.value');
+    var revAll = label('UserInterface.Buttons.Button.ReviewAll.label');
+    return '<div class="abe-reviewScreen-2-0" tabindex="-1"><div class="abe-reviewScreenHeader">' +
+      '<div class="abe-reviewTypeTitle-2-0 rc-fonts-Normal"><h3 class="abe-reviewHeading"> ' + esc(title) + ' </h3></div>' +
+      '<div id="abe-ReviewAllButtonContainer" class="abe-ReviewButtonContainer"><button id="abe-ReviewAllButton" class="abe-reviewBtn rc-fonts-Normal" data-accesskey="A" accesskey="A">' +
+      keyLabel(revAll) + '</button></div></div></div>';
+  }
+
   function render() {
     var item = exam.items[state.index];
+    if (state.phase === 'review') {
+      app.innerHTML = titleBar(item) + toolBar() +
+        '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
+        reviewBody() + '</div></div>' + navBar();
+      return;
+    }
     app.innerHTML = titleBar(item) + toolBar() +
       '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
       '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() + (state.english ? englishDialog(item) : '') + (state.commentOpen ? commentDialog(item) : '');
@@ -249,7 +278,17 @@
       state.commentOpen = false; render();
     }
     else if (t.id === 'abe-eng-close') { state.english = false; render(); }
-    else if (t.id === 'abe-NextButton') go(state.index + 1);
+    else if (t.id === 'abe-NextButton') {
+      if (state.index >= exam.items.length - 1) {
+        state.phase = 'review';
+        state.fromReview = false;
+        state.english = false;
+        state.commentOpen = false;
+        render();
+      } else {
+        go(state.index + 1);
+      }
+    }
     else if (t.id === 'abe-PreviousButton') go(state.index - 1);
     else if (t.id === 'abe-TimeRemainingSectionButton') { state.timerHidden = !state.timerHidden; render(); }
     else if (t.id === 'abe-ItemOrdinalKnownButton') { state.counterHidden = !state.counterHidden; render(); }
