@@ -12,7 +12,7 @@
     phase: 'start', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
     answers: {}, flags: {}, comments: {}, checked: {},
     remainingSec: exam.durationMinutes * 60, startedAt: null,
-    timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false, endReviewStep: 0,
+    timerHidden: false, counterHidden: false, english: false, commentOpen: false, explanationOpen: false, explanationEn: false, schemeOpen: false, instructionsOpen: false, endReviewStep: 0,
     resumeSaved: null,
   };
   var frozen = false;
@@ -70,6 +70,8 @@
     state.reviewTab = 'All';
     state.english = false;
     state.commentOpen = false;
+    state.explanationOpen = false;
+    state.explanationEn = false;
     state.instructionsOpen = false;
     state.endReviewStep = 0;
   }
@@ -89,6 +91,8 @@
     state.startedAt = null;
     state.english = false;
     state.commentOpen = false;
+    state.explanationOpen = false;
+    state.explanationEn = false;
     state.instructionsOpen = false;
     state.endReviewStep = 0;
   }
@@ -166,11 +170,15 @@
         keyLabel(label('UserInterface.Buttons.Button.ReviewInstructions.label')) + '</button></div></div>' +
         '<div id="abe-toolbar-flags">' + colorSchemes() + '</div></div>';
     }
-    var flagged = !!state.flags[exam.items[state.index].id];
+    var item = exam.items[state.index];
+    var flagged = !!state.flags[item.id];
+    var checkBtn = state.mode === 'study' ?
+      '<div class="abe-icon-left" style="padding-left:5px"><button id="abe-checkAnswerButton" class="rc-fonts-Small" data-accesskey="K" accesskey="K"' +
+      (isComplete(item) ? '' : ' disabled') + '>' + keyLabel(label('UserInterface.Buttons.Button.CheckCorrect.label')) + '</button></div>' : '';
     return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
       '<span id="Tool_bar" style="display:none">Tool bar</span>' +
       '<div id="abe-toolbar-tools"><div class="abe-icon-left" style="padding-left:5px">' + button('abe-CommentButton', 'Comment', 'M') + '</div></div>' +
-      '<div id="abe-toolbar-flags"><div class="abe-icon-left" style="padding-left:5px">' +
+      '<div id="abe-toolbar-flags">' + checkBtn + '<div class="abe-icon-left" style="padding-left:5px">' +
       button('abe-FlagForReviewItemButton', 'FlagForReviewItem', 'F', { cls: flagged ? ' abe-FlagForReviewItemButtonSelected' : ' abe-FlagForReviewItemButtonUnselected' }) +
       '</div>' + colorSchemes() + '</div></div>';
   }
@@ -214,17 +222,21 @@
     return String(text).split(/\n\n/).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
   }
 
-  function optionRow(item, opt, checked, multi) {
+  function isItemLocked(item) {
+    return state.phase === 'answerReview' || !!(item && state.checked && state.checked[item.id]);
+  }
+
+  function optionRow(item, opt, checked, multi, locked) {
     var id = esc(item.id) + '.R.' + esc(opt.id);
     return '<div class="abe-opt">' +
       '<div class="abe-opt-input"><label class="abe-parentLabel"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="response-' + esc(item.id) +
-      '" id="' + id + '" value="' + esc(opt.id) + '" aria-label="' + esc(opt.id + '. ' + opt.ko) + '"' + (checked ? ' checked' : '') + '></label></div>' +
+      '" id="' + id + '" value="' + esc(opt.id) + '" aria-label="' + esc(opt.id + '. ' + opt.ko) + '"' + (checked ? ' checked' : '') + (locked ? ' disabled' : '') + '></label></div>' +
       '<label class="abe-opt-letter' + (opt.compact ? ' abe-compact' : '') + '" for="' + id + '" aria-hidden="true"><p>' + esc(opt.id) + '.</p>' + (opt.compact ? '' : '<p><span class="tab"></span></p>') + '</label>' +
       '<label class="abe-opt-text" for="' + id + '" aria-hidden="true"><div class="abe-mat-html">' + esc(opt.ko) + '</div></label></div>';
   }
 
   // jQuery UI selectmenu 모양의 드롭다운. 실제 <select>를 투명하게 덮어 입력을 받는다.
-  function slotSelect(item, i, value, name) {
+  function slotSelect(item, i, value, name, locked) {
     var ph = label('UserInterface.Property.ComboBoxEmptyValue.value');
     var cur = null;
     for (var k = 0; k < item.choices.length; k++) if (item.choices[k].id === value) cur = item.choices[k];
@@ -236,7 +248,7 @@
       '<span class="ui-icon ui-icon-triangle-1-s"></span>' +
       '<span class="abe-ghost" aria-hidden="true">' + ghost + '</span>' +
       '<span class="ui-selectmenu-text">' + esc(cur ? cur.ko : ph) + '</span>' +
-      '<select class="abe-drop_down" data-slot="' + i + '" aria-label="' + esc(name) + '">' + opts + '</select></span></span>';
+      '<select class="abe-drop_down" data-slot="' + i + '" aria-label="' + esc(name) + '"' + (locked ? ' disabled' : '') + '>' + opts + '</select></span></span>';
   }
 
   // 원본 구조: 행마다 <p><span batang 12pt>…</span></p>, 행 사이에 &nbsp; 빈 행.
@@ -244,14 +256,14 @@
     return '<p' + (inner === '&nbsp;' ? '' : ' class="abe-slot"') + '><span style="font-family:Batang,&quot;Noto Sans CJK KR&quot;,sans-serif;font-size:12pt">' + inner + '</span></p>';
   }
 
-  function orderingBody(item) {
+  function orderingBody(item, locked) {
     var sel = state.answers[item.id] || [];
     var html = '<div class="abe-ordering">';
     html += '<ul class="abe-choice-list">' + item.choices.map(function (c) { return '<li> ' + esc(c.ko) + '</li>'; }).join('') + '</ul>';
     html += slotP('&nbsp;');
     item.slots.forEach(function (sl, i) {
       var lab = sl.label ? esc(sl.label.ko) : '';
-      var dd = slotSelect(item, i, sel[i] || null, sl.label ? sl.label.ko : '슬롯 ' + (i + 1));
+      var dd = slotSelect(item, i, sel[i] || null, sl.label ? sl.label.ko : '슬롯 ' + (i + 1), locked);
       html += slotP(sl.side === 'left' ? (lab ? lab + '&nbsp;&nbsp;&nbsp;&nbsp;' : '') + dd : dd + (lab ? '&nbsp;' + lab : ''));
       if (i < item.slots.length - 1) html += slotP('&nbsp;');
     });
@@ -259,12 +271,12 @@
   }
 
   // matching: 범주 목록 + prompt별 드롭다운(라벨은 왼쪽). 답은 {promptId: choiceId}.
-  function matchingBody(item) {
+  function matchingBody(item, locked) {
     var sel = state.answers[item.id] || {};
     var html = '<div class="abe-ordering">';
     html += '<ul class="abe-choice-list">' + item.choices.map(function (c) { return '<li> ' + esc(c.ko) + '</li>'; }).join('') + '</ul>';
     item.prompts.forEach(function (pr, i) {
-      html += slotP(esc(pr.ko) + '&nbsp;&nbsp;&nbsp;' + slotSelect(item, i, sel[pr.id] || null, pr.ko));
+      html += slotP(esc(pr.ko) + '&nbsp;&nbsp;&nbsp;' + slotSelect(item, i, sel[pr.id] || null, pr.ko, locked));
       if (i < item.prompts.length - 1) html += slotP('&nbsp;');
     });
     return html + '</div>';
@@ -273,6 +285,7 @@
   function itemBody(item) {
     var sel = state.answers[item.id] || [];
     var multi = item.type === 'multiple';
+    var locked = isItemLocked(item);
     var html = '<div class="abe-english-row"><button id="exhibit1" class="abe-ExhibitButton rc-fonts-Small Secondary abe-NoDefaultImage" style="color:#fff !important">' +
       '<div class="abe-ImageLabelContainer"><div class="abe-DefaultLabelContainer">English</div></div></button></div>';
     var head = '';
@@ -283,9 +296,9 @@
         '<h2><p style="font-size:16px"><b>문항 (' + (group.indexOf(item) + 1) + '/' + group.length + ')</b></p></h2>';
     }
     html += '<div class="abe-stem abe-mat-html' + (item.type === 'ordering' || item.type === 'matching' ? ' abe-stem-ordering' : '') + '">' + head + textBlock(item.stem.ko) + '</div>';
-    if (item.type === 'ordering') html += orderingBody(item);
-    if (item.type === 'matching') html += matchingBody(item);
-    if (item.options) html += item.options.map(function (o) { return optionRow(item, o, sel.indexOf(o.id) >= 0, multi); }).join('');
+    if (item.type === 'ordering') html += orderingBody(item, locked);
+    if (item.type === 'matching') html += matchingBody(item, locked);
+    if (item.options) html += item.options.map(function (o) { return optionRow(item, o, sel.indexOf(o.id) >= 0, multi, locked); }).join('');
     return html;
   }
 
@@ -314,6 +327,62 @@
       '<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"><div class="ui-dialog-buttonset">' +
       '<button type="button" id="SAVE" accesskey="S" aria-label="' + esc(save) + '" class="ui-button ui-corner-all ui-widget rc-fonts-Message">' + keyLabel(save) + '</button>' +
       '<button type="button" id="CANCEL" accesskey="C" aria-label="' + esc(cancel) + '" class="ui-button ui-corner-all ui-widget rc-fonts-Message">' + keyLabel(cancel) + '</button>' +
+      '</div></div></div>';
+  }
+
+  function formatItemAnswer(item, ans) {
+    if (item.type === 'single' || item.type === 'multiple') {
+      var arr = Array.isArray(ans) ? ans.filter(Boolean) : [];
+      if (arr.length === 0) return '미응답';
+      return arr.map(function (id) {
+        var opt = null;
+        for (var i = 0; i < item.options.length; i++) if (item.options[i].id === id) opt = item.options[i];
+        return esc(opt ? opt.id + '. ' + opt.ko : id);
+      }).join('<br>');
+    }
+    if (item.type === 'ordering') {
+      var oArr = Array.isArray(ans) ? ans : [];
+      return item.slots.map(function (sl, idx) {
+        var sLab = sl.label ? sl.label.ko : '슬롯 ' + (idx + 1);
+        var cid = oArr[idx];
+        var ch = null;
+        for (var i = 0; i < item.choices.length; i++) if (item.choices[i].id === cid) ch = item.choices[i];
+        return esc(sLab + ': ' + (ch ? ch.ko : '미응답'));
+      }).join('<br>');
+    }
+    if (item.type === 'matching') {
+      var mObj = (ans && typeof ans === 'object' && !Array.isArray(ans)) ? ans : {};
+      return item.prompts.map(function (pr) {
+        var cid = mObj[pr.id];
+        var ch = null;
+        for (var i = 0; i < item.choices.length; i++) if (item.choices[i].id === cid) ch = item.choices[i];
+        return esc(pr.ko + ': ' + (ch ? ch.ko : '미응답'));
+      }).join('<br>');
+    }
+    return '';
+  }
+
+  function explanationDialog(item) {
+    var ok = isCorrect(item);
+    var resCls = ok ? 'abe-reviewComplete abe-reviewCompleteLabel' : 'abe-reviewIncomplete abe-reviewIncompleteLabel';
+    var resTxt = ok ? '정답입니다' : '오답입니다';
+    var badges = '';
+    if (item.explanationSource === 'ai') badges += '<span class="abe-exp-badge abe-exp-badge-ai">AI 해설</span>';
+    if (item.disputed) badges += '<span class="abe-exp-badge abe-exp-badge-disputed">정답 논란</span>';
+    var correctHtml = formatItemAnswer(item, item.answer);
+    var userHtml = formatItemAnswer(item, state.answers[item.id]);
+    var enBody = state.explanationEn ?
+      '<div id="abe-exp-en" class="abe-exp-en" lang="en">' + textBlock(item.explanation.en) + '</div>' : '';
+    return '<div tabindex="-1" role="dialog" id="abe-explanation-dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front tabbed-dialog-all rc-fonts-Message Primary abe-english-dialog abe-explanation-dialog" aria-labelledby="abe-exp-title">' +
+      '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix"><span id="abe-exp-title" class="ui-dialog-title rc-fonts-Message"><span class="abe-SolutionImage"></span>' +
+      '<span class="abe-ui-exam-dialog-title rc-fonts-Normal">해설</span></span>' +
+      '<button type="button" id="abe-exp-close" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close"><span class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space"> </span>Close</button></div>' +
+      '<div class="abe-popup-window-tabbed-dialog ui-dialog-content Content rc-fonts-ItemText" style="overflow:auto"><div class="abe-eng-body abe-exp-body abe-mat-html">' +
+      '<div class="abe-exp-header"><span id="abe-exp-result" class="abe-reviewItemStatus ' + resCls + ' abe-reviewScreenStatusFont">' + resTxt + '</span>' + badges + '</div>' +
+      '<div class="abe-exp-section"><strong>정답:</strong> <div id="abe-exp-correct" class="abe-exp-answer">' + correctHtml + '</div></div>' +
+      '<div class="abe-exp-section"><strong>내 답:</strong> <div id="abe-exp-user" class="abe-exp-answer">' + userHtml + '</div></div>' +
+      '<div id="abe-exp-ko" class="abe-exp-ko">' + textBlock(item.explanation.ko) + '</div>' +
+      '<div class="abe-exp-en-wrap"><button type="button" id="abe-exp-en-toggle" class="abe-ExhibitButton rc-fonts-Small Secondary abe-NoDefaultImage" style="color:#fff !important" aria-expanded="' + !!state.explanationEn + '">English</button>' + enBody + '</div>' +
       '</div></div></div>';
   }
 
@@ -590,7 +659,8 @@
     }
     app.innerHTML = titleBar(item) + toolBar() +
       '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
-      '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() + (state.english ? englishDialog(item) : '') + (state.commentOpen ? commentDialog(item) : '');
+      '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() +
+      (state.english ? englishDialog(item) : '') + (state.commentOpen ? commentDialog(item) : '') + (state.explanationOpen ? explanationDialog(item) : '');
     // jQuery UI selectmenu는 버튼 너비를 정수로 올림하므로 같게 맞춘다.
     var btns = app.querySelectorAll('.abe-slot .ui-selectmenu-button');
     for (var b = 0; b < btns.length; b++) btns[b].style.width = Math.ceil(btns[b].getBoundingClientRect().width) + 'px';
@@ -600,6 +670,8 @@
     state.index = Math.max(0, Math.min(exam.items.length - 1, i));
     state.english = false;
     state.commentOpen = false;
+    state.explanationOpen = false;
+    state.explanationEn = false;
     render();
   }
 
@@ -634,7 +706,7 @@
   document.addEventListener('keydown', function (e) {
     if (!e.altKey || e.ctrlKey || e.metaKey || e.key.length !== 1) return;
     var b = app.querySelector('button[accesskey="' + e.key.toUpperCase() + '"], button[accesskey="' + e.key.toLowerCase() + '"]');
-    if (!b) return;
+    if (!b || b.disabled) return;
     e.preventDefault();
     b.click();
   });
@@ -694,7 +766,7 @@
     if (sb) { state.schemeOpen = !state.schemeOpen; render(); return; }
     if (state.schemeOpen) { state.schemeOpen = false; render(); }
     var t = e.target.closest('button, input');
-    if (!t) return;
+    if (!t || t.disabled) return;
     if (t.classList.contains('abe-reviewSectionTitle')) { selectReviewTab(t.id); return; }
     if (t.id === 'abe-ReviewInstructionsButton') { state.instructionsOpen = true; render(); return; }
     if (t.id === 'Close') { state.instructionsOpen = false; render(); return; }
@@ -757,10 +829,23 @@
       state.reviewList = null;
       state.english = false;
       state.commentOpen = false;
+      state.explanationOpen = false;
+      state.explanationEn = false;
       state.instructionsOpen = false;
       render();
       return;
     }
+    if (t.id === 'abe-checkAnswerButton') {
+      var curItem = exam.items[state.index];
+      if (!isComplete(curItem)) return;
+      state.checked[curItem.id] = true;
+      state.explanationOpen = true;
+      state.explanationEn = false;
+      render();
+      return;
+    }
+    if (t.id === 'abe-exp-close') { state.explanationOpen = false; render(); return; }
+    if (t.id === 'abe-exp-en-toggle') { state.explanationEn = !state.explanationEn; render(); return; }
     if (t.id === 'exhibit1' || t.closest('#exhibit1')) { state.english = true; render(); }
     else if (t.id === 'abe-CommentButton') { state.commentOpen = true; render(); }
     else if (t.id === 'SAVE' || t.id === 'CANCEL') {
@@ -796,6 +881,8 @@
       state.reviewList = null;
       state.english = false;
       state.commentOpen = false;
+      state.explanationOpen = false;
+      state.explanationEn = false;
       render();
     }
     else if (t.id === 'abe-PreviousButton') {
@@ -821,8 +908,9 @@
       state.mode = t.value;
       return;
     }
+    var it = exam.items[state.index];
+    if (isItemLocked(it)) return;
     if (t && t.tagName === 'SELECT' && t.hasAttribute('data-slot')) {
-      var it = exam.items[state.index];
       if (it.type === 'matching') {
         var map = Object.assign({}, state.answers[it.id]);
         var pid = it.prompts[+t.getAttribute('data-slot')].id;
@@ -844,6 +932,8 @@
     if (t.type === 'radio') cur = [t.value];
     else cur = t.checked ? cur.concat(t.value) : cur.filter(function (v) { return v !== t.value; });
     state.answers[qid] = cur;
+    var checkBtn = document.getElementById('abe-checkAnswerButton');
+    if (checkBtn) checkBtn.disabled = !isComplete(it);
     saveState();
   });
 
@@ -860,6 +950,10 @@
         state.reviewTab = 'All';
         state.fromReview = false;
         state.reviewList = null;
+        state.english = false;
+        state.commentOpen = false;
+        state.explanationOpen = false;
+        state.explanationEn = false;
         state.instructionsOpen = false;
         state.endReviewStep = 0;
         state.resumeSaved = null;

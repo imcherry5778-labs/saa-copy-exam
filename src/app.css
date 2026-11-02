@@ -151,3 +151,22 @@ div.abe-eng-opt:first-of-type { margin-top: 23px; }
 .abe-resultScoreRow .abe-reviewItemStatus { margin-bottom: 0; margin-left: 8px; }
 .abe-resultMeta { display: flex; gap: 32px; border-top: 1px solid #e0e0e0; padding-top: 12px; }
 .abe-resultMetric { display: flex; gap: 8px; align-items: center; }
+
+/* 학습 모드 및 해설 창 */
+#abe-checkAnswerButton:disabled { opacity: 0.5; cursor: default; }
+#abe-checkAnswerButton:disabled:hover { color: #FFFFFF !important; background-position: left -170px; }
+.abe-explanation-dialog #abe-exp-close { font-size: 0; color: transparent; }
+.abe-explanation-dialog #abe-exp-close .ui-icon { display: block; position: absolute; top: 10px; left: 4px; width: 20px; height: 20px; margin: -8px 0 0 -8px; }
+.abe-explanation-dialog #abe-exp-close .ui-button-icon-space { display: none; }
+.abe-explanation-dialog .abe-SolutionImage { display: inline-block; vertical-align: middle; margin-right: 6px; }
+.abe-exp-body { padding: 20px 18px; }
+.abe-exp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.abe-exp-header .abe-reviewItemStatus { margin-bottom: 0; }
+.abe-exp-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; }
+.abe-exp-badge-ai { background: #e8f1f8; color: #006daa; border: 1px solid #006daa; }
+.abe-exp-badge-disputed { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.abe-exp-section { margin-bottom: 12px; line-height: 24px; }
+.abe-exp-answer { margin-top: 4px; padding-left: 8px; }
+.abe-exp-ko { margin-top: 16px; padding-top: 12px; border-top: 1px solid #e0e0e0; }
+.abe-exp-en-wrap { margin-top: 12px; }
+.abe-exp-en { margin-top: 12px; padding: 12px; background: #f8f9fa; border: 1px solid #e0e0e0; }
