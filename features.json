@@ -49,7 +49,7 @@
     "steps": [
       "[M1-05] visual: ko-04-q1-selected-flagged 일치"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M1-06",
