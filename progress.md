@@ -20,3 +20,9 @@
 - `tests/validate.spec.mjs`에 `[M1-02]` 테스트 2개를 추가했고 통과했다. 회귀 검사(passing)도 통과했다.
 - 남은 문제: 없음.
 - 다음 할 일: M1-03(`scripts/build.mjs`). template + css + js + vendor 자산(data URI)을 합쳐 dist/demo-fixture.html을 만들고, 빌드 전에 validate를 호출한다.
+
+## 2026-11-02 M1-03
+- `scripts/build.mjs`와 `src/{template.html,app.css,app.js}` 골격을 만들었다. 빌드 전에 validate를 호출하고, CSS의 `url(@vendor/경로)`를 data URI로 치환하며, exam JSON과 ko 문자열을 `<script type="application/json">`으로 넣는다.
+- `tests/build.spec.mjs`에 `[M1-03]` 테스트 2개를 추가했다(file:// 요청 0건, 잘못된 입력 시 빌드 실패). 통과했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: app.css/app.js는 아직 골격뿐이다.
+- 다음 할 일: M1-04(공통 크롬 + single 렌더링, `ko-04-q1` 픽셀 일치). 스프라이트는 `url(@vendor/kor/default.png)`로 참조한다.
