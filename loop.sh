@@ -28,7 +28,20 @@ for i in $(seq 1 "$MAX"); do
     --model "$MODEL" --permission-mode acceptEdits \
     --allowedTools "$TOOLS" --disallowedTools "Bash(git push:*)" \
     < /dev/null > ".tmp/loop/$M-$i.log" 2>&1
+  rc=$?
   tail -n 8 ".tmp/loop/$M-$i.log"
+
+  # Usage limits or CLI failures produce no work; stop instead of burning iterations.
+  if grep -qiE "hit your .*limit" ".tmp/loop/$M-$i.log"; then
+    notify "$M 일시 중지 · $(head -n 1 ".tmp/loop/$M-$i.log" | cut -c1-80)"
+    echo "=== $M paused: usage limit — rerun ./loop.sh $M after the reset"
+    exit 3
+  fi
+  if [ "$rc" -ne 0 ]; then
+    notify "$M 중단 · claude 종료 코드 $rc (iter $i)"
+    echo "=== $M stopped: claude exited $rc — see .tmp/loop/$M-$i.log"
+    exit 3
+  fi
 
   if ! node scripts/guard.mjs "$base"; then
     notify "$M 중단 · 하네스 위반 (iter $i)"
