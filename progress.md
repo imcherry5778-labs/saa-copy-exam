@@ -26,3 +26,11 @@
 - `tests/build.spec.mjs`에 `[M1-03]` 테스트 2개를 추가했다(file:// 요청 0건, 잘못된 입력 시 빌드 실패). 통과했고 회귀 검사(passing)도 통과했다.
 - 남은 문제: app.css/app.js는 아직 골격뿐이다.
 - 다음 할 일: M1-04(공통 크롬 + single 렌더링, `ko-04-q1` 픽셀 일치). 스프라이트는 `url(@vendor/kor/default.png)`로 참조한다.
+
+## 2026-11-02 M1-04
+- `src/app.js`에 상태, 공통 크롬(타이틀 바·타이머·카운터·툴바·하단 바)과 single 렌더링, 테스트 훅(`__exam.load/setRemaining`)을 구현했다. 타이머·카운터 클릭 시 숨김/표시가 동작한다.
+- `build.mjs`가 원본 `base.css`/`screen.css`/한국어 스프라이트 CSS를 앞에 붙인다. 스프라이트는 CSS 변수 하나로 data URI를 공유하고(빌드 크기 ~300KB), 나머지 상대 `url()`은 빈 이미지로 바꾼다. 색상 구성표 드롭다운은 jQuery UI 없이 `app.css`에 직접 작성했다.
+- 폰트: 이 PC에서 `Batang`만 쓰면 라틴 글자가 serif로 나와 기준과 달랐다. 그래서 `font-family`를 `Batang, "Noto Sans CJK KR", sans-serif`로 지정했다(기준 이미지와 일치).
+- `ko-04-q1` 픽셀 테스트와 `tests/chrome.spec.mjs`의 `[M1-04]` 테스트 3개가 통과했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: 선택·플래그 상태 반영은 아직 없다(옵션 클릭 이벤트 없음). 플래그 버튼의 선택 상태 아이콘은 M1-05에서 확인한다.
+- 다음 할 일: M1-05(응답 선택과 플래그 토글, `ko-04-q1-selected-flagged` 픽셀 일치).

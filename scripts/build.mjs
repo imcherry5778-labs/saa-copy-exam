@@ -15,6 +15,14 @@ function inlineVendor(css) {
   });
 }
 
+// 원본 Pearson CSS(base/screen/스프라이트)를 앞에 붙인다. 스프라이트는 data URI로, 그 밖의 상대 url()은 빈 이미지로 바꾼다.
+function pearsonCss() {
+  const read = (f) => readFileSync(`vendor/${f}`, 'utf8');
+  const base = [read('css/base.css'), read('css/screen.css')].join('\n').replace(/url\(\s*['"]?(?!data:)[^'")]*['"]?\s*\)/g, 'url(data:,)');
+  const sprites = read('kor/sprites-compiled.css').replace(/url\(\s*['"]?([^'")?]*)[^)]*\)/g, (m, f) => (f === 'default.png' ? 'var(--sprite-kor)' : existsSync(`vendor/kor/${f}`) ? `url(@vendor/kor/${f})` : 'url(data:,)'));
+  return ':root{--sprite-kor:url(@vendor/kor/default.png)}\n' + base + '\n' + sprites + '\n';
+}
+
 // <script> 안에 안전하게 넣기 위한 JSON 직렬화
 const safeJson = (v) => JSON.stringify(v).replace(/</g, '\\u003c').replace(/[\u2028\u2029]/g, (c) => '\\u' + c.charCodeAt(0).toString(16));
 const escHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -28,7 +36,7 @@ if (errs.length) { console.error(errs.join('\n')); process.exit(1); }
 
 const parts = {
   __TITLE__: () => escHtml(`${exam.title} - ${exam.candidate}`),
-  __CSS__: () => inlineVendor(readFileSync('src/app.css', 'utf8')),
+  __CSS__: () => inlineVendor(pearsonCss() + readFileSync('src/app.css', 'utf8')),
   __EXAM__: () => safeJson(exam),
   __STRINGS__: () => safeJson(JSON.parse(readFileSync('vendor/strings.ko.json', 'utf8'))),
   __JS__: () => readFileSync('src/app.js', 'utf8').replace(/<\/script/gi, '<\\/script'),

@@ -1,1 +1,51 @@
+/* Pearson 기본 테마 값(리소스 컨테이너 오버라이드). base/screen/스프라이트 CSS는 build가 앞에 붙인다. */
+.Primary, .Primary button { color: #FFFFFF; background-color: #006DAA; }
+.Primary button:hover, button.Primary:hover { color: #FFFF00; }
+.abe-inline-button-right { border-left: 2px solid #FFFFFF; }
+.abe-inline-button-left { border-right: 2px solid #FFFFFF; }
+.Secondary, .Secondary button, .Secondary a { color: #FFFFFF !important; background-color: #4678BE !important; }
+.Secondary button:hover, button.Secondary:hover { color: #FFFF00 !important; }
+.Content, .Content.ui-widget-content { color: #000000; }
+#abe-contentPane { background-color: #FFFFFF; }
+.abe-colorSchemeBackgroundColor { color: #FFFFFF !important; background: #4678BE !important; }
+.abe-ExhibitButton, .abe-ItemContentButton { border-color: #006DAA; text-align: center; }
+#abe-TimeRemainingSectionButton.locked { color: #FFFF00; }
+
 body { margin: 0; }
+#abe-contentPane { top: 79px; bottom: 33px; height: unset; overflow: auto; }
+#abe-timerContents.off, #abe-itemCounterWrapper.off { visibility: hidden; }
+
+/* 글꼴과 크기: 한국어판 캡처의 computed 값 */
+#abe-titlebar-title, #abe-titlebar-title span { font-family: Batang, "Noto Sans CJK KR", sans-serif; font-size: 21.3333px; }
+#abe-timerContents, #abe-ItemOrdinalKnown { font-family: Batang, "Noto Sans CJK KR", sans-serif; }
+#abe-toolbar button, #abe-navigationbar button, .ui-selectmenu-text { font-family: Batang, "Noto Sans CJK KR", sans-serif; font-weight: 400; }
+#abe-navigationbar button { font-size: 18.6667px; }
+#abe-contentPane, #abe-contentPane button { font-family: Batang, "Noto Sans CJK KR", sans-serif; font-size: 16px; font-weight: 400; }
+#abe-contentPane p { margin: 0 0 16px; line-height: 24px; }
+
+/* 색상 구성표 드롭다운(jQuery UI selectmenu 대체) */
+.abe-colorSchemeDropDown { display: flex; width: 196px; height: 29.39px; justify-content: center; align-items: center; overflow: hidden; padding: 0 !important; }
+#colorSchemeDropDown { display: block; width: 188px; height: 21.39px; padding: 3px; border: 1px solid #000; text-align: left; }
+#colorSchemes-button { display: inline-block; position: relative; width: 190px; height: 23.39px; margin: -1px; line-height: 22.4px; white-space: nowrap; color: #000; cursor: pointer; background: transparent; border: 0; }
+#colorSchemes-button .ui-selectmenu-text { display: block; width: 165px; height: 22.39px; margin: 0 20px 0 0; padding: 0 0 1px 5px; overflow: hidden; color: #fff !important; background-color: #4678BE !important; font-size: 16px; }
+#colorSchemes-button .ui-icon { display: block; position: absolute; top: 11.69px; left: 181px; width: 9px; height: 12px; margin: -5px 0 0; background: url(@vendor/kor/contrastDownArrow.png) no-repeat; text-indent: 0; }
+
+/* 문항 본문 */
+#abe-contentPane .abe-content-root { padding: 18px; }
+.abe-english-row { height: 56px; }
+.abe-stem { margin-top: 16px; padding: 0 0 10px; }
+.abe-opt { display: flex; align-items: flex-start; padding: 10px 0; }
+.abe-opt-input { width: 30px; flex: none; margin-top: 2px; height: 26px; }
+.abe-opt-input input { margin: 8px 3px 3px 5px; }
+.abe-opt-letter { width: 48px; flex: none; margin-top: 2px; height: 48px; }
+.abe-opt-letter p { margin: 0; }
+.abe-opt-text { margin-top: 2px; }
+.abe-opt-letter .tab { display: inline-block; }
+
+.rc-fonts-Large {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:16pt !important;font-weight:normal !important;}
+.rc-fonts-Normal {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:14pt !important;font-weight:normal !important;}
+.rc-fonts-Small {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:12pt !important;font-weight:normal !important;}
+.rc-fonts-ToolTip {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:10pt !important;font-weight:normal !important;}
+.rc-fonts-Message {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:12pt !important;font-weight:normal !important;}
+.rc-fonts-ItemText {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:12pt !important;font-weight:normal !important;}
+.rc-fonts-TextEntry {font-family: Batang, "Noto Sans CJK KR", sans-serif !important;font-size:12pt !important;font-weight:normal !important;}
