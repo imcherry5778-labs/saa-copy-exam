@@ -115,8 +115,9 @@
       return '<option value="' + esc(c.id) + '"' + (c.id === value ? ' selected' : '') + '>' + esc(c.ko) + '</option>';
     }).join('');
     return '<span class="ui-selectmenu"><span class="ui-selectmenu-button" data-slot="' + i + '">' +
-      '<span class="ui-icon ui-icon-triangle-1-s"></span><span class="ui-selectmenu-text">' + esc(cur ? cur.ko : ph) + '</span>' +
+      '<span class="ui-icon ui-icon-triangle-1-s"></span>' +
       '<span class="abe-ghost" aria-hidden="true">' + ghost + '</span>' +
+      '<span class="ui-selectmenu-text">' + esc(cur ? cur.ko : ph) + '</span>' +
       '<select class="abe-drop_down" data-slot="' + i + '" aria-label="' + esc(name) + '">' + opts + '</select></span></span>';
   }
 
@@ -198,6 +199,9 @@
     app.innerHTML = titleBar(item) + toolBar() +
       '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
       '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() + (state.english ? englishDialog(item) : '') + (state.commentOpen ? commentDialog(item) : '');
+    // jQuery UI selectmenu는 버튼 너비를 정수로 올림하므로 같게 맞춘다.
+    var btns = app.querySelectorAll('.abe-slot .ui-selectmenu-button');
+    for (var b = 0; b < btns.length; b++) btns[b].style.width = Math.ceil(btns[b].getBoundingClientRect().width) + 'px';
   }
 
   function go(i) {

@@ -69,7 +69,7 @@
       "[M1-07] visual: ko-05-q4, ko-05-q5 일치",
       "드롭다운 선택이 상태에 저장"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M1-08",
