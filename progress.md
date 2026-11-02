@@ -156,3 +156,9 @@
 - `scripts/check.sh passing` 26/26 통과(회귀 없음). M1에서 `passes:false`로 남은 항목은 M1-08, M1-09 둘뿐이다.
 - M1-08은 3회 시도 후 BLOCKED 상태라 재도전하지 않았다. M1-09는 탭 줄 유무에 대한 QUESTION이 아직 답변되지 않아 추측으로 구현하지 않았다. 코드 변경 없음.
 - 다음 할 일: 사람이 M1-09 QUESTION(보기별 `tab` 필드 추가 vs `caseStudy` 규칙 + q9 허용 오차)을 결정한다. M1-08은 `capture/dom/05-q6.html`의 p/span 구조를 그대로 복제하는 방식으로 재도전한다.
+
+## 2026-11-02 M1-08 (재도전, 중단)
+- 원본 DOM(`capture/dom/ko-05-q6.html`)을 확인했다. 각 행은 `<p><span style="font-family:batang;font-size:12pt">라벨&nbsp;&nbsp;&nbsp;<드롭다운></span></p>`이고 행 사이에 `<p><span>&nbsp;</span></p>` 빈 행이 있다. 현재는 div(`.abe-slot`)와 24px 고정 gap이다.
+- `.abe-slot` min-height를 26.75px로 바꿔 행 pitch를 50.75px에 맞춰 봤으나 q6 942px, q7 1650px로 악화해 되돌렸다(기준선 q6 714, q7 546). 코드 변경 없음.
+- BLOCKED: M1-08 — CSS 수치 조정만으로는 안 된다. 원본처럼 p/span 구조와 글꼴·line-height 상속까지 맞춰야 하는데, 이는 통과 중인 ordering(M1-07) 레이아웃에도 영향을 준다. 회귀 검사와 함께 별도 실행에서 진행해야 한다.
+- 남은 항목: M1-08(BLOCKED), M1-09(QUESTION 대기). 다음 할 일: 사람이 M1-09 결정을 내리거나 M1-08 구조 변경 방침을 승인한다.
