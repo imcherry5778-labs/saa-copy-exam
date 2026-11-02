@@ -165,7 +165,7 @@
     "steps": [
       "[M2-05] visual: ko-06-instructions 일치"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-06",

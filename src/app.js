@@ -10,7 +10,7 @@
   var state = {
     phase: 'item', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
     answers: {}, flags: {}, comments: {}, checked: {},
-    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false,
+    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false,
   };
   var frozen = false;
 
@@ -305,12 +305,31 @@
       '</div></div></div>';
   }
 
+  function instructionsDialog() {
+    var title = label('UserInterface.ReviewScreen.Property.PreScoreInstructionsTitle2.0.value');
+    var info = label('UserInterface.Messages.Message.DialogTypeInfo.text');
+    var body = label('UserInterface.ReviewScreen.Property.ReviewScreenInstructions2.0.value').trim();
+    var close = label('UserInterface.Buttons.Button.Close.label');
+    return '<div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front modal ui-dialog-buttons ui-draggable Primary abe-ReviewInstructionsDialogMainContent abe-ReviewInstructionsDialog" aria-describedby="instructionsWindow" aria-labelledby="ui-id-75" style="height: auto; width: 817.6px; top: 388.428px; left: 547.006px; z-index: 2147483147;">' +
+      '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle abe-ReviewInstructionsDialogTitleCloseParent">' +
+      '<span id="ui-id-75" class="ui-dialog-title rc-fonts-Message abe-ReviewInstructionTitle" tabindex="-1">' + esc(title) + '<span class="abe-ReviewInstructionsDialogHorizontalLine"></span></span>' +
+      '<button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close abe-ReviewInstructionsDialogTitleClose" title="Close" id="instructionsWindow-closeBtn" style="display: none;"><span class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space"> </span>Close<span class="abe-ReviewInstructionsDialogHorizontalLine"></span></button></div>' +
+      '<div id="instructionsWindow" style="overflow: hidden auto; width: auto; min-height: 53.85px; max-height: none; height: auto;" class="abe-InformationImage info-dialog ui-dialog-content ui-widget-content abe-ReviewInstructionsDialogTitleCloseParent">' +
+      '<span class="sr-only">' + esc(info) + '. </span>' +
+      '<div class="abe-dialogDiv"><div class="abe-infoDiv abe-ReviewInstructionInfoLI"></div>' +
+      '<p tabindex="-1" class="abe-messageText rc-fonts-Message">' + body + '</p></div></div>' +
+      '<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix abe-ReviewInstructionsDialogButtonPane">' +
+      '<div class="ui-dialog-buttonset position-center">' +
+      '<button type="button" id="Close" class="ui-button ui-corner-all ui-widget rc-fonts-Message abe-ReviewInstructionsDialogCloseButton" accesskey="c" aria-label="' + esc(close) + '">' + keyLabel(close) + '</button>' +
+      '</div></div></div>';
+  }
+
   function render() {
     var item = exam.items[state.index];
     if (state.phase === 'review') {
       app.innerHTML = titleBar(item) + toolBar() +
         '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main" style="background-color: rgb(242, 243, 245);"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
-        reviewBody() + '</div></div>' + navBar();
+        reviewBody() + '</div></div>' + navBar() + (state.instructionsOpen ? instructionsDialog() : '');
       return;
     }
     app.innerHTML = titleBar(item) + toolBar() +
@@ -339,7 +358,7 @@
   // Alt+글자: 브라우저별 accesskey 조합 차이를 없애려고 직접 처리한다(이중 실행 방지로 기본 동작은 막는다).
   document.addEventListener('keydown', function (e) {
     if (!e.altKey || e.ctrlKey || e.metaKey || e.key.length !== 1) return;
-    var b = app.querySelector('button[accesskey="' + e.key.toUpperCase() + '"]');
+    var b = app.querySelector('button[accesskey="' + e.key.toUpperCase() + '"], button[accesskey="' + e.key.toLowerCase() + '"]');
     if (!b) return;
     e.preventDefault();
     b.click();
@@ -402,10 +421,13 @@
     var t = e.target.closest('button, input');
     if (!t) return;
     if (t.classList.contains('abe-reviewSectionTitle')) { selectReviewTab(t.id); return; }
+    if (t.id === 'abe-ReviewInstructionsButton') { state.instructionsOpen = true; render(); return; }
+    if (t.id === 'Close') { state.instructionsOpen = false; render(); return; }
     if (t.classList.contains('abe-reviewItemBtn')) {
       state.phase = 'item';
       state.fromReview = true;
       state.reviewList = null;
+      state.instructionsOpen = false;
       go(+t.getAttribute('data-review-index'));
       return;
     }
@@ -413,6 +435,7 @@
       state.phase = 'item';
       state.fromReview = true;
       state.reviewList = null;
+      state.instructionsOpen = false;
       go(0);
       return;
     }
@@ -426,6 +449,7 @@
         state.phase = 'item';
         state.fromReview = true;
         state.reviewList = list;
+        state.instructionsOpen = false;
         go(list[0]);
       }
       return;
@@ -437,6 +461,7 @@
       state.reviewList = null;
       state.english = false;
       state.commentOpen = false;
+      state.instructionsOpen = false;
       render();
       return;
     }
@@ -519,6 +544,7 @@
         state.reviewTab = 'All';
         state.fromReview = false;
         state.reviewList = null;
+        state.instructionsOpen = false;
         for (var k in s) state[k] = s[k];
         render();
       },

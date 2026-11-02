@@ -125,3 +125,11 @@ div.abe-eng-opt:first-of-type { margin-top: 23px; }
 .abe-opt-input input[type=checkbox] { margin: 3.5px 3px 3px 4px; }
 /* 원본(ko-05-q9): 탭 줄이 있는 보기 바로 뒤에 compact 보기가 오면 행 간격이 10px 줄어든다. */
 .abe-opt:has(.abe-opt-letter:not(.abe-compact)) + .abe-opt:has(.abe-compact) { margin-top: -10px; }
+
+/* 지침 대화상자 */
+.abe-ReviewInstructionsDialog { box-sizing: content-box; padding: 3.2px; border: 1px solid #fff; }
+.abe-ReviewInstructionsDialog .ui-dialog-titlebar { border-bottom: 1px solid #fff; }
+.abe-ReviewInstructionsDialog .ui-dialog-titlebar::after { content: ""; display: table; clear: both; }
+.abe-ReviewInstructionsDialog .abe-ReviewInstructionTitle { float: left; margin: 2.238px 0; overflow: hidden; font-family: Batang, "Noto Sans CJK KR", sans-serif !important; font-size: 22.38px !important; font-weight: 700 !important; }
+.abe-ReviewInstructionsDialog .abe-ReviewInstructionsDialogButtonPane { padding: 0 6.4px 3.2px; }
+.abe-ReviewInstructionsDialog .abe-ReviewInstructionsDialogCloseButton { margin: 8px 6.4px 8px 0; border: 1px solid #fff; line-height: 16px; }

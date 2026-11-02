@@ -155,4 +155,16 @@ test('[M2-04] 검토 버튼으로 해당 문항으로 이동하고 검토 화면
   await expect(page.locator('.abe-reviewScreen-2-0')).toBeVisible();
 });
 
+test('[M2-05] 지침 (R) 버튼으로 지침 대화상자가 열리고 닫기 (C)로 닫힌다', async ({ page }) => {
+  await openReview(page, { answers: { q1: ['A'] }, flags: { q1: true } });
+
+  await page.getByRole('button', { name: '지침 (R)' }).click();
+  const dlg = page.getByRole('dialog', { name: '지침' });
+  await expect(dlg).toBeVisible();
+  await expect(dlg).toContainText('이 검토는 귀하의 답변에 대한 요약입니다.');
+
+  await dlg.getByRole('button', { name: '닫기 (C)' }).click();
+  await expect(dlg).toHaveCount(0);
+});
+
 

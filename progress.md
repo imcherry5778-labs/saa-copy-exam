@@ -210,3 +210,10 @@
 - 남은 문제: Review 툴바의 `지침 (R)` 대화상자와 `검토 종료 (E)` 2단계 확인 대화상자는 아직 구현되지 않았다.
 - 다음 할 일: M2-05(`지침 대화상자`, `ko-06-instructions` 픽셀 일치)를 진행한다.
 
+## 2026-11-02 M2-05
+- Review 툴바의 `지침 (R)`(`#abe-ReviewInstructionsButton`) 클릭 시 `capture/dom/ko-06-instructions.html` 마크업과 `strings.ko.json`의 `ReviewScreenInstructions2.0` 문자열로 지침 대화상자(`.abe-ReviewInstructionsDialog`)를 띄우고 `닫기 (C)`(`#Close`)로 닫히게 구현했다.
+- `src/app.css`에 `.abe-ReviewInstructionsDialog`의 패딩·테두리, 제목줄 하단 1px 흰 테두리·제목 폰트(`22.38px`, `700`), 버튼 여백 스타일을 추가해 `[M2-05]` 픽셀 테스트(`ko-06-instructions`)와 기능 테스트(`tests/review.spec.mjs`) 및 회귀 검사(44/44)를 통과하고 `passes: true`로 변경했다.
+- 남은 문제: Review 하단 바의 `검토 종료 (E)` 2단계 확인 대화상자는 아직 구현되지 않았다.
+- 다음 할 일: M2-06(`검토 종료 2단계 확인`, `ko-07-end-review-confirm`, `ko-07-end-review-confirm2` 픽셀 일치, 미완료 0개일 때 문구 변형)을 진행한다.
+
+
