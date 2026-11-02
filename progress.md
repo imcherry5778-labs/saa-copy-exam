@@ -14,3 +14,9 @@
 - `tests/assets.spec.mjs`에 `[M1-01]` 테스트를 추가했고 통과했다. 회귀 검사(passing)도 통과했다.
 - 남은 문제: 없음.
 - 다음 할 일: M1-02(`scripts/validate.mjs`). exams/sample.json과 demo-fixture.json이 통과해야 한다.
+
+## 2026-11-02 M1-02
+- `scripts/validate.mjs`를 작성했다. `validateExam()`을 export하고 CLI로도 쓴다. spec 4절 규칙(필드, id 유일성, answer 참조, select 길이, domain, caseStudy 참조·연속성, ko/en 비어 있지 않음)을 검사하고 `items[3].answer: ...` 형식으로 오류를 모두 출력하며 실패 시 exit 1이다.
+- `tests/validate.spec.mjs`에 `[M1-02]` 테스트 2개를 추가했고 통과했다. 회귀 검사(passing)도 통과했다.
+- 남은 문제: 없음.
+- 다음 할 일: M1-03(`scripts/build.mjs`). template + css + js + vendor 자산(data URI)을 합쳐 dist/demo-fixture.html을 만들고, 빌드 전에 validate를 호출한다.
