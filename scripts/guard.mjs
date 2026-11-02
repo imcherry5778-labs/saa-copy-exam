@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const [base, flag, prevFile] = process.argv.slice(2);
-const PROTECTED = ['tests/visual.spec.mjs', 'playwright.config.mjs', 'scripts/check.sh', 'scripts/guard.mjs', 'loop.sh', 'prompts/', 'docs/spec.md', 'CLAUDE.md'];
+const PROTECTED = ['tests/visual.spec.mjs', 'playwright.config.mjs', 'scripts/check.sh', 'scripts/guard.mjs', 'loop.sh', 'prompts/', 'docs/spec.md', 'AGENTS.md', 'CLAUDE.md'];
 
 if (flag === '--revert-new-passes') {
   const prev = Object.fromEntries(JSON.parse(readFileSync(prevFile, 'utf8')).map((f) => [f.id, f.passes]));

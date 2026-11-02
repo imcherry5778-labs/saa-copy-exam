@@ -1,16 +1,37 @@
 #!/usr/bin/env bash
-# Sonnet implementation loop (harness-owned). Run it in an Orca terminal so it can be watched.
-#   ./loop.sh M1 [maxIter]      MODEL=claude-sonnet-5-5 by default
-# Stops when every feature of the milestone passes and `scripts/check.sh <M>` is green,
-# on a guard violation, or after maxIter iterations.
+# Vendor-neutral implementation loop (harness-owned). Run it in an Orca terminal so it can be watched.
+#   ./loop.sh M2 [maxIter]
+#   AGENT=codex ./loop.sh M2          # claude (default) | codex | agy
+#   AGENT=agy MODEL=gemini-4-argon-high ./loop.sh M2
+# All state lives in files (features.json, progress.md, git), so agents can be swapped
+# between runs. Stops when every feature of the milestone passes and `scripts/check.sh <M>`
+# is green, on a guard violation, a usage limit / CLI failure, or after maxIter iterations.
 set -uo pipefail
 cd "$(dirname "$0")"
-M=${1:?usage: ./loop.sh M1 [maxIter]}
+M=${1:?usage: [AGENT=claude|codex|agy] ./loop.sh M1 [maxIter]}
 MAX=${2:-15}
-MODEL=${MODEL:-claude-sonnet-5-5}
-TOOLS="Read Edit Write Glob Grep Bash(node:*) Bash(npx:*) Bash(npm:*) Bash(git:*) Bash(scripts/check.sh:*) Bash(./scripts/check.sh:*) Bash(ls:*) Bash(cat:*) Bash(head:*) Bash(tail:*) Bash(grep:*) Bash(wc:*) Bash(mkdir:*) Bash(cp:*) Bash(mv:*) Bash(rm:*) Bash(python3:*)"
+AGENT=${AGENT:-claude}
 mkdir -p .tmp/loop
 base=$(git rev-parse HEAD)
+
+# Claude keeps a tool allowlist. Codex and agy run without a sandbox: Chrome (Playwright)
+# cannot start inside Codex's workspace-write sandbox, and agy print mode cannot answer
+# permission prompts. guard.mjs + git are the safety net for all three.
+run_agent() { # $1 = prompt, $2 = log file
+  case "$AGENT" in
+    claude)
+      claude -p "$1" --model "${MODEL:-claude-sonnet-5-5}" --permission-mode acceptEdits \
+        --allowedTools "Read Edit Write Glob Grep Bash(node:*) Bash(npx:*) Bash(npm:*) Bash(git:*) Bash(scripts/check.sh:*) Bash(./scripts/check.sh:*) Bash(ls:*) Bash(cat:*) Bash(head:*) Bash(tail:*) Bash(grep:*) Bash(wc:*) Bash(mkdir:*) Bash(cp:*) Bash(mv:*) Bash(rm:*) Bash(python3:*)" \
+        --disallowedTools "Bash(git push:*)" < /dev/null > "$2" 2>&1 ;;
+    codex)
+      codex exec ${MODEL:+-m "$MODEL"} -s danger-full-access -c approval_policy='"never"' \
+        "$1" < /dev/null > "$2" 2>&1 ;;
+    agy)
+      agy -p "$1" --model "${MODEL:-claude-sonnet-5-5-medium}" \
+        --dangerously-skip-permissions < /dev/null > "$2" 2>&1 ;;
+    *) echo "unknown AGENT=$AGENT (claude|codex|agy)" >&2; exit 64 ;;
+  esac
+}
 
 status() { node -e "const f=require('./features.json').filter(x=>x.milestone==='$M');console.log(f.filter(x=>x.passes).length+'/'+f.length)"; }
 milestone_done() { node -e "process.exit(require('./features.json').filter(x=>x.milestone==='$M').every(x=>x.passes)?0:1)"; }
@@ -18,39 +39,33 @@ milestone_done() { node -e "process.exit(require('./features.json').filter(x=>x.
 notify() { [ -n "${ORCA_CLI_COMMAND:-}" ] && "$ORCA_CLI_COMMAND" worktree set --worktree active --comment "$1" --json >/dev/null 2>&1 || true; }
 
 for i in $(seq 1 "$MAX"); do
-  echo "=== $M iteration $i/$MAX — $(status) passing"
-  notify "$M iter $i · $(status) 통과 · Sonnet 작업 중"
+  log=".tmp/loop/$M-$i.log"
+  echo "=== $M iteration $i/$MAX [$AGENT] — $(status) passing"
+  notify "$M iter $i · $(status) 통과 · $AGENT 작업 중"
   cp features.json .tmp/loop/features.before.json
 
-  claude -p "$(cat prompts/iterate.md)
+  run_agent "$(cat prompts/iterate.md)
 
-현재 마일스톤: $M" \
-    --model "$MODEL" --permission-mode acceptEdits \
-    --allowedTools "$TOOLS" --disallowedTools "Bash(git push:*)" \
-    < /dev/null > ".tmp/loop/$M-$i.log" 2>&1
+현재 마일스톤: $M" "$log"
   rc=$?
-  tail -n 8 ".tmp/loop/$M-$i.log"
+  tail -n 8 "$log"
 
   # Usage limits or CLI failures produce no work; stop instead of burning iterations.
-  if grep -qiE "hit your .*limit" ".tmp/loop/$M-$i.log"; then
-    notify "$M 일시 중지 · $(head -n 1 ".tmp/loop/$M-$i.log" | cut -c1-80)"
-    echo "=== $M paused: usage limit — rerun ./loop.sh $M after the reset"
-    exit 3
-  fi
-  if [ "$rc" -ne 0 ]; then
-    notify "$M 중단 · claude 종료 코드 $rc (iter $i)"
-    echo "=== $M stopped: claude exited $rc — see .tmp/loop/$M-$i.log"
+  if grep -qiE "hit your .*limit" "$log" || [ "$rc" -ne 0 ]; then
+    reason=$(grep -iE "limit|quota|exhausted|error" "$log" | tail -n 1 | cut -c1-80)
+    notify "$M 일시 중지 · $AGENT · ${reason:-종료 코드 $rc}"
+    echo "=== $M paused [$AGENT rc=$rc]: ${reason:-see $log} — rerun later or switch AGENT"
     exit 3
   fi
   # Remaining features all wait on a human decision (BLOCKED/QUESTION in progress.md).
-  if grep -q "NO-ACTIONABLE-FEATURE" ".tmp/loop/$M-$i.log"; then
+  if grep -q "NO-ACTIONABLE-FEATURE" "$log"; then
     notify "$M 대기 · 사람 결정 필요 ($(status) 통과)"
     echo "=== $M waiting: remaining features need a decision — see BLOCKED/QUESTION in progress.md"
     exit 4
   fi
 
   if ! node scripts/guard.mjs "$base"; then
-    notify "$M 중단 · 하네스 위반 (iter $i)"
+    notify "$M 중단 · 하네스 위반 · $AGENT (iter $i)"
     exit 2
   fi
   if ! scripts/check.sh passing > ".tmp/loop/$M-$i.check.log" 2>&1; then
