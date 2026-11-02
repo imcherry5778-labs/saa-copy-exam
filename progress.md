@@ -65,3 +65,10 @@
 - CSS는 바꾸지 않았다. 원본 base.css의 h1/h2 스타일로 `ko-05-q8`, `ko-05-q9` 픽셀 테스트가 바로 일치했고 회귀 검사(passing)도 통과했다.
 - 남은 문제: 없음. features.json steps가 픽셀 비교뿐이라 별도 spec 파일은 만들지 않았다.
 - 다음 할 일: M1-10(English 팝업, `ko-04-q1-english` 픽셀 일치, 닫기 X로 닫힘).
+
+## 2026-11-02 M1-10
+- `src/app.js`에 English 팝업을 구현했다. `English` 버튼이 `state.english`를 켜고, jQuery UI dialog 마크업(제목 `English`, 닫기 X, 영어 stem과 `A. ...` 보기)을 앱 위에 띄운다. 닫기 X를 누르거나 다른 문항으로 이동하면 닫힌다.
+- `app.css`에 팝업 스타일(960px 폭, 가운데 정렬, 제목줄 44px, 본문 488px)을 추가했다. 기준 DOM의 좌표(`capture/styles`)와 diff 이미지를 보며 간격을 맞췄다.
+- `ko-04-q1-english` 픽셀 테스트와 `tests/english.spec.mjs`의 `[M1-10]` 테스트 2개가 통과했고 회귀 검사(passing)도 통과했다.
+- 남은 문제: 팝업을 드래그/크기 조절하는 기능은 없다(스펙에 없음).
+- 다음 할 일: M1-11(설명 대화상자, `ko-04-q1-comment` 픽셀 일치, 저장 시 문항별 보관, 취소 시 변경 폐기). 팝업 CSS를 참고할 수 있다.

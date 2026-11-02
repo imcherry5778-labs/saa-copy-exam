@@ -10,7 +10,7 @@
   var state = {
     phase: 'item', mode: 'exam', index: 0, fromReview: false,
     answers: {}, flags: {}, comments: {}, checked: {},
-    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false,
+    remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false,
   };
   var frozen = false;
 
@@ -161,15 +161,29 @@
     return html;
   }
 
+  // English 팝업: 영어 stem과 보기 "A. ..." (jQuery UI dialog 마크업을 따른다)
+  function englishDialog(item) {
+    var opts = (item.options || []).map(function (o) {
+      return '<div class="abe-eng-opt"><p lang="en">' + esc(o.id + '. ' + o.en) + '</p></div>';
+    }).join('');
+    return '<div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front tabbed-dialog-all rc-fonts-Message Primary abe-english-dialog" aria-labelledby="abe-eng-title">' +
+      '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix"><span id="abe-eng-title" class="ui-dialog-title rc-fonts-Message"><span class="abe-ExhibitImage"></span>' +
+      '<span class="abe-ui-exam-dialog-title rc-fonts-Normal">English</span></span>' +
+      '<button type="button" id="abe-eng-close" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close"><span class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space"> </span>Close</button></div>' +
+      '<div class="abe-popup-window-tabbed-dialog ui-dialog-content Content rc-fonts-ItemText"><div class="abe-eng-body abe-mat-html">' +
+      String(item.stem.en).split(/\n\n/).map(function (p) { return '<p lang="en">' + esc(p) + '</p>'; }).join('') + opts + '</div></div></div>';
+  }
+
   function render() {
     var item = exam.items[state.index];
     app.innerHTML = titleBar(item) + toolBar() +
       '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
-      '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar();
+      '<div class="abe-content-root">' + itemBody(item) + '</div></div></div>' + navBar() + (state.english ? englishDialog(item) : '');
   }
 
   function go(i) {
     state.index = Math.max(0, Math.min(exam.items.length - 1, i));
+    state.english = false;
     render();
   }
 
@@ -184,7 +198,9 @@
   app.addEventListener('click', function (e) {
     var t = e.target.closest('button, input');
     if (!t) return;
-    if (t.id === 'abe-NextButton') go(state.index + 1);
+    if (t.id === 'exhibit1' || t.closest('#exhibit1')) { state.english = true; render(); }
+    else if (t.id === 'abe-eng-close') { state.english = false; render(); }
+    else if (t.id === 'abe-NextButton') go(state.index + 1);
     else if (t.id === 'abe-PreviousButton') go(state.index - 1);
     else if (t.id === 'abe-TimeRemainingSectionButton') { state.timerHidden = !state.timerHidden; render(); }
     else if (t.id === 'abe-ItemOrdinalKnownButton') { state.counterHidden = !state.counterHidden; render(); }
