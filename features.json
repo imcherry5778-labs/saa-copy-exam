@@ -156,7 +156,7 @@
       "[M2-04] visual: ko-06-reviewing-q1 일치",
       "검토 화면 (S)로 복귀"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-05",

@@ -132,3 +132,27 @@ test('[M2-03] 5유형(single, multiple, ordering, matching, caseStudy) 완료/�
   await expect(page.locator('#IncompleteTbodyContent')).toContainText('레코드를 찾을 수 없습니다.');
 });
 
+test('[M2-04] 검토 버튼으로 해당 문항으로 이동하고 검토 화면 (S)로 복귀하며 모두 검토 (A)로 1번부터 차례로 본다', async ({ page }) => {
+  await openReview(page, { answers: { q1: ['A'] }, flags: { q1: true } });
+
+  // 1) 특정 문항(4번)의 검토 버튼 클릭 -> 4번 문항으로 이동, 하단에 검토 화면 (S) 표시
+  await page.getByRole('button', { name: /Review Question 4/ }).click();
+  await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText('문제 4 / 9');
+  const revScreenBtn = page.getByRole('button', { name: '검토 화면 (S)' });
+  await expect(revScreenBtn).toBeVisible();
+
+  // 2) 검토 화면 (S) 클릭 -> Review 화면으로 복귀
+  await revScreenBtn.click();
+  await expect(page.locator('.abe-reviewScreen-2-0')).toBeVisible();
+
+  // 3) 모두 검토 (A) 클릭 -> 1번 문항부터 차례로 이동, 마지막 문항 다음에서 Review 복귀
+  await page.getByRole('button', { name: '모두 검토 (A)' }).click();
+  for (let i = 1; i <= 9; i++) {
+    await expect(page.locator('#abe-ItemOrdinalKnown')).toHaveText(`문제 ${i} / 9`);
+    await expect(page.getByRole('button', { name: '검토 화면 (S)' })).toBeVisible();
+    await page.getByRole('button', { name: '다음 (N)' }).click();
+  }
+  await expect(page.locator('.abe-reviewScreen-2-0')).toBeVisible();
+});
+
+

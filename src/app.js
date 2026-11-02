@@ -8,7 +8,7 @@
   app.setAttribute('data-exam-id', exam.id);
 
   var state = {
-    phase: 'item', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All',
+    phase: 'item', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
     answers: {}, flags: {}, comments: {}, checked: {},
     remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false,
   };
@@ -97,12 +97,16 @@
         keyLabel(label('UserInterface.Buttons.Button.EndReview.label')) + '</button></div></div>' +
         '<div id="abe-navigation-jump"></div></div>';
     }
-    var prev = state.index > 0 ?
+    var rev = state.fromReview ?
+      '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-ReviewScreenButton" class="rc-fonts-Normal" data-accesskey="S" accesskey="S">' +
+      keyLabel(label('UserInterface.Buttons.Button.ReviewScreen.label')) + '</button></div>' : '';
+    var hasPrev = state.reviewList ? state.reviewList.indexOf(state.index) > 0 : state.index > 0;
+    var prev = hasPrev ?
       '<div class="abe-inline-button-right abe-icon-left" style="padding-left:5px"><button id="abe-PreviousButton" class="rc-fonts-Normal" data-accesskey="P" accesskey="P">' +
       keyLabel(label('UserInterface.Buttons.Button.Previous.label')) + '</button></div>' : '';
     var next = '<div class="abe-inline-button-right abe-icon-right"><button id="abe-NextButton" class="rc-fonts-Normal" data-accesskey="N" accesskey="N">' +
       keyLabel(label('UserInterface.Buttons.Button.Next.label')) + '</button></div>';
-    return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish"></div>' +
+    return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' + rev + '</div>' +
       '<div id="abe-navigation-jump"' + (prev ? ' class="abe-has-prev"' : '') + '>' + prev + next + '</div></div>';
   }
 
@@ -398,6 +402,44 @@
     var t = e.target.closest('button, input');
     if (!t) return;
     if (t.classList.contains('abe-reviewSectionTitle')) { selectReviewTab(t.id); return; }
+    if (t.classList.contains('abe-reviewItemBtn')) {
+      state.phase = 'item';
+      state.fromReview = true;
+      state.reviewList = null;
+      go(+t.getAttribute('data-review-index'));
+      return;
+    }
+    if (t.id === 'abe-ReviewAllButton') {
+      state.phase = 'item';
+      state.fromReview = true;
+      state.reviewList = null;
+      go(0);
+      return;
+    }
+    if (t.id === 'abe-ReviewIncompleteButton' || t.id === 'abe-ReviewFlaggedButton') {
+      var isInc = t.id === 'abe-ReviewIncompleteButton';
+      var list = [];
+      exam.items.forEach(function (it, idx) {
+        if (isInc ? !isComplete(it) : !!state.flags[it.id]) list.push(idx);
+      });
+      if (list.length > 0) {
+        state.phase = 'item';
+        state.fromReview = true;
+        state.reviewList = list;
+        go(list[0]);
+      }
+      return;
+    }
+    if (t.id === 'abe-ReviewScreenButton') {
+      state.phase = 'review';
+      state.reviewTab = 'All';
+      state.fromReview = false;
+      state.reviewList = null;
+      state.english = false;
+      state.commentOpen = false;
+      render();
+      return;
+    }
     if (t.id === 'exhibit1' || t.closest('#exhibit1')) { state.english = true; render(); }
     else if (t.id === 'abe-CommentButton') { state.commentOpen = true; render(); }
     else if (t.id === 'SAVE' || t.id === 'CANCEL') {
@@ -407,18 +449,32 @@
     }
     else if (t.id === 'abe-eng-close') { state.english = false; render(); }
     else if (t.id === 'abe-NextButton') {
-      if (state.index >= exam.items.length - 1) {
-        state.phase = 'review';
-        state.reviewTab = 'All';
-        state.fromReview = false;
-        state.english = false;
-        state.commentOpen = false;
-        render();
-      } else {
+      if (state.reviewList) {
+        var pos = state.reviewList.indexOf(state.index);
+        if (pos >= 0 && pos < state.reviewList.length - 1) {
+          go(state.reviewList[pos + 1]);
+          return;
+        }
+      } else if (state.index < exam.items.length - 1) {
         go(state.index + 1);
+        return;
+      }
+      state.phase = 'review';
+      state.reviewTab = 'All';
+      state.fromReview = false;
+      state.reviewList = null;
+      state.english = false;
+      state.commentOpen = false;
+      render();
+    }
+    else if (t.id === 'abe-PreviousButton') {
+      if (state.reviewList) {
+        var ppos = state.reviewList.indexOf(state.index);
+        if (ppos > 0) go(state.reviewList[ppos - 1]);
+      } else {
+        go(state.index - 1);
       }
     }
-    else if (t.id === 'abe-PreviousButton') go(state.index - 1);
     else if (t.id === 'abe-TimeRemainingSectionButton') { state.timerHidden = !state.timerHidden; render(); }
     else if (t.id === 'abe-ItemOrdinalKnownButton') { state.counterHidden = !state.counterHidden; render(); }
     else if (t.id === 'abe-FlagForReviewItemButton') {
@@ -461,6 +517,8 @@
     window.__exam = {
       load: function (s) {
         state.reviewTab = 'All';
+        state.fromReview = false;
+        state.reviewList = null;
         for (var k in s) state[k] = s[k];
         render();
       },
