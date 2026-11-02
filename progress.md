@@ -162,3 +162,8 @@
 - `.abe-slot` min-height를 26.75px로 바꿔 행 pitch를 50.75px에 맞춰 봤으나 q6 942px, q7 1650px로 악화해 되돌렸다(기준선 q6 714, q7 546). 코드 변경 없음.
 - BLOCKED: M1-08 — CSS 수치 조정만으로는 안 된다. 원본처럼 p/span 구조와 글꼴·line-height 상속까지 맞춰야 하는데, 이는 통과 중인 ordering(M1-07) 레이아웃에도 영향을 준다. 회귀 검사와 함께 별도 실행에서 진행해야 한다.
 - 남은 항목: M1-08(BLOCKED), M1-09(QUESTION 대기). 다음 할 일: 사람이 M1-09 결정을 내리거나 M1-08 구조 변경 방침을 승인한다.
+
+## 2026-11-02 M1 (진행 불가 재확인)
+- `scripts/check.sh passing` 26/26 통과(회귀 없음). M1의 `passes:false`는 M1-08(BLOCKED)과 M1-09(QUESTION 대기)뿐이다.
+- M1-08은 직전 실행에서 재도전해 중단했고, M1-09는 사람의 결정이 없어 추측 구현하지 않았다. 코드 변경 없음.
+- 다음 할 일: 사람이 M1-09 QUESTION(보기별 `tab` 필드 vs `caseStudy` 규칙 + q9 허용 오차)과 M1-08의 p/span 구조 변경 방침을 결정한다. 그 뒤 `scripts/check.sh M1` 게이트 확인 후 M2-01로 간다.
