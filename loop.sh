@@ -42,6 +42,12 @@ for i in $(seq 1 "$MAX"); do
     echo "=== $M stopped: claude exited $rc — see .tmp/loop/$M-$i.log"
     exit 3
   fi
+  # Remaining features all wait on a human decision (BLOCKED/QUESTION in progress.md).
+  if grep -q "NO-ACTIONABLE-FEATURE" ".tmp/loop/$M-$i.log"; then
+    notify "$M 대기 · 사람 결정 필요 ($(status) 통과)"
+    echo "=== $M waiting: remaining features need a decision — see BLOCKED/QUESTION in progress.md"
+    exit 4
+  fi
 
   if ! node scripts/guard.mjs "$base"; then
     notify "$M 중단 · 하네스 위반 (iter $i)"

@@ -3,7 +3,8 @@
 1. 상태 파악
    - `tail -n 80 progress.md`, `git log --oneline -15`를 확인한다.
    - `features.json`에서 현재 마일스톤의 `passes:false` 항목 중 **첫 번째**를 고른다.
-   - progress.md에 BLOCKED로 남은 항목은 건너뛴다(다른 항목이 없을 때만 재도전).
+   - progress.md에 `BLOCKED:`나 `QUESTION:`으로 남은 항목은 건너뛴다. 단, 그보다 뒤에 `RESOLVED: <ID>` 기록이 있으면 그 지시에 따라 다시 진행한다.
+   - 진행할 항목이 하나도 없으면(남은 항목이 모두 BLOCKED 또는 QUESTION) 아무것도 기록하거나 커밋하지 말고 `NO-ACTIONABLE-FEATURE` 한 줄만 출력한 뒤 끝낸다.
 2. `scripts/check.sh passing`를 실행한다.
    - 실패하면 회귀다. 이번 실행은 회귀 수정만 하고 7번으로 간다.
 3. `docs/spec.md`의 해당 절과 `capture/` 기준 자료를 근거로 구현한다.

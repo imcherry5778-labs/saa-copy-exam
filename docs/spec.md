@@ -77,6 +77,7 @@ tests/*.spec.mjs      Playwright 테스트 (제목에 [M1-03] 같은 기능 ID �
 | `ordering` | `choices[{id,ko,en}]`, `slots[{label:{ko,en}\|null, side:"left"\|"right"}]` | 슬롯 순서대로 choice id 배열 | 모든 슬롯 선택 |
 | `matching` | `choices[{id,ko,en}]`(범주), `prompts[{id,ko,en}]` | `{promptId: choiceId}` | 모든 prompt 선택 |
 
+- `options[].compact`(선택, bool, 기본 false)는 **데모 재현 전용 표시 힌트**다. 기본 보기 행은 보기 글자 셀 안에 빈 문단이 하나 더 있는 원본 구조(행 높이 48px, `ko-04-q1`)를 따른다. `compact: true`인 보기는 빈 문단이 없다(24px, `ko-05-q8`의 모든 보기, `ko-05-q9`의 A·B·D). 덤프 변환에서는 이 필드를 쓰지 않는다. 2026-11-02 사용자 결정.
 - 같은 `caseStudy` 값을 가진 문항은 서로 연속해야 한다.
 - 채점은 **문항 단위 전부 맞아야 정답**이고 부분 점수는 없다.
 - 검증 규칙: 위 필드 존재, id 유일성, answer가 실제 id를 가리킴, `multiple`은 answer 길이와 select가 같음, domain 범위, caseStudy 참조와 연속성, ko·en이 빈 문자열이 아님. 오류는 `items[3].answer: ...`처럼 경로와 함께 모두 출력한다.

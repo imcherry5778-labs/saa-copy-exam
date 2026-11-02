@@ -167,3 +167,8 @@
 - `scripts/check.sh passing` 26/26 통과(회귀 없음). M1의 `passes:false`는 M1-08(BLOCKED)과 M1-09(QUESTION 대기)뿐이다.
 - M1-08은 직전 실행에서 재도전해 중단했고, M1-09는 사람의 결정이 없어 추측 구현하지 않았다. 코드 변경 없음.
 - 다음 할 일: 사람이 M1-09 QUESTION(보기별 `tab` 필드 vs `caseStudy` 규칙 + q9 허용 오차)과 M1-08의 p/span 구조 변경 방침을 결정한다. 그 뒤 `scripts/check.sh M1` 게이트 확인 후 M2-01로 간다.
+
+## 2026-11-02 M1 결정 (Opus) — M1-08, M1-09 재개
+- RESOLVED: M1-09 — 사용자 결정에 따라 보기별 표시 힌트 `options[].compact`(기본 false)를 스펙 4절에 추가했다. 기본 보기 행은 보기 글자 셀 안에 빈 문단이 하나 더 있는 원본 구조(48px)다. `compact:true`면 빈 문단을 넣지 않는다(24px). `exams/demo-fixture.json`에는 이미 반영했다(q8은 모든 보기, q9는 A·B·D). `scripts/validate.mjs`는 이 필드를 받아들이고, 값이 있으면 bool인지 검사하게 고친다(`[M1-02]` 테스트 유지).
+- RESOLVED: M1-08 — 플래너 승인. ordering과 matching 행을 원본 DOM(`capture/dom/ko-05-q6.html`, `ko-05-q4.html`)처럼 `<p><span style="font-family:batang;font-size:12pt">라벨&nbsp;&nbsp;&nbsp;<드롭다운></span></p>` 구조로 바꾸고, 행 사이에는 `<p><span>&nbsp;</span></p>` 빈 행을 넣는다. 고정 gap과 min-height 보정은 버린다. M1-07(`ko-05-q4`, `ko-05-q5`)이 회귀 검사에서 계속 통과해야 한다. M1-07의 원본 구조도 같다면 함께 옮긴다.
+- 하네스 변경: 남은 항목이 모두 BLOCKED 또는 QUESTION이면 에이전트가 `NO-ACTIONABLE-FEATURE`를 출력하고, 루프는 그 자리에서 대기 상태로 멈춘다(지난 실행에서는 반복 4회를 이 확인에만 썼다).
