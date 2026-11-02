@@ -107,7 +107,7 @@
       "[M1-11] visual: ko-04-q1-comment 일치",
       "저장 시 문항별 보관, 취소 시 변경 폐기"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M1-12",

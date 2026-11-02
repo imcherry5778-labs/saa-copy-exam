@@ -83,14 +83,14 @@ div.abe-eng-opt:first-of-type { margin-top: 23px; }
 .abe-english-dialog #abe-eng-close .ui-button-icon-space { display: none; }
 /* 설명 대화상자 */
 .abe-comment-dialog { position: absolute; top: 378px; left: 50%; margin-left: -321px; width: 633.6px; z-index: 2147483147; box-sizing: content-box; padding: 3.2px; border: 1px solid #fff; background: #006daa; color: #fff; }
-.abe-comment-dialog .ui-dialog-titlebar { box-sizing: content-box; padding: 6.4px 8px; height: 27.19px; position: relative; }
+.abe-comment-dialog .ui-dialog-titlebar { box-sizing: content-box; padding: 6.4px 8px; height: 27.19px; position: relative; border-bottom: 1px solid #fff; }
 .abe-comment-dialog .abe-CommentImage { display: block; float: left; width: 20px; height: 20px; margin: 0 4px 0 0; }
 .abe-comment-dialog .ui-dialog-title { display: block; margin: 1.6px 0; height: 24px; white-space: nowrap; }
 .abe-comment-dialog #abe-commentWindow { margin: 0 6px; padding: 0 6px 0 0; height: 227.85px; position: relative; overflow: hidden; background: transparent; border: 0; }
 .abe-comment-text { box-sizing: border-box; display: block; width: 100%; height: 100%; resize: none; border: 1px solid #ccc; border-radius: 10px; background: #fff; color: #000; padding: 8px; }
 .abe-comment-dialog .ui-dialog-buttonpane { margin: 0 15px 0 0; padding: 0 6.4px 3.2px; height: 43.59px; background: #006daa; border: 0; }
 .abe-comment-dialog .ui-dialog-buttonset { float: right; }
-.abe-comment-dialog .ui-dialog-buttonset button { margin: 8px 6.4px 8px 0; padding: 3.8px 10px 5.8px 12px; border: 1px solid #fff; background: #006daa; color: #fff; cursor: pointer; }
+.abe-comment-dialog .ui-dialog-buttonset button { margin: 8px 6.4px 0 0; box-sizing: border-box; height: 27.6px; padding: 0 10px 3px 12px; border: 1px solid #fff; background: #006daa; color: #fff; cursor: pointer; }
 .abe-colorSchemeDropDown { position: relative; overflow: visible !important; }
 .abe-colorSchemeMenu { position: absolute; top: 28px; left: 3px; z-index: 100; width: 190px; margin: 0; padding: 0; list-style: none; background: #fff; border: 1px solid #000; text-align: left; }
 .abe-colorSchemeMenu li { padding: 3px 5px; font-size: 16px; color: #000; cursor: pointer; }
