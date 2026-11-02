@@ -171,7 +171,7 @@ URL에 `?test=1`이 있으면 `window.__exam`을 노출한다.
 ### 6.2 픽셀 비교
 `tests/visual.spec.mjs`가 `dist/demo-fixture.html?test=1`을 1920×1080으로 열고, 상태를 맞춘 뒤 `capture/shots/ko-*.png`와 비교한다.
 - 남은 시간은 기준 이미지의 `capture/aria/<name>.yml`에서 읽어 `setRemaining`으로 맞춘다.
-- 허용 오차는 `maxDiffPixelRatio 0.005`, `threshold 0.1`이다. 이 값은 사용자 승인 없이 바꾸지 않는다.
+- 허용 오차는 화면당 `maxDiffPixels 300`, `threshold 0.1`이다(2026-11-02 사용자 승인으로 0.5%에서 강화). 이 값은 사용자 승인 없이 바꾸지 않는다.
 - 기준 이미지 갱신(`--update-snapshots`)은 금지한다.
 
 ### 6.3 기능 테스트

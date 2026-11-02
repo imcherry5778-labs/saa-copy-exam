@@ -8,7 +8,7 @@ export default defineConfig({
   reporter: [['list']],
   timeout: 30_000,
   expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0.005, threshold: 0.1, animations: 'disabled' },
+    toHaveScreenshot: { maxDiffPixels: 300, threshold: 0.1, animations: 'disabled' },
   },
   use: {
     channel: 'chrome',

@@ -1,34 +1,281 @@
 [
-  { "id": "M1-01", "milestone": "M1", "title": "자산 추출: capture/ → vendor/ (스프라이트, 아이콘, strings.ko.json, strings.en.json)", "steps": ["node scripts/extract-assets.mjs 실행 시 vendor/ 생성", "strings.ko.json에 getMessages의 driverProperties 키가 그대로 존재", "[M1-01] 테스트 통과"], "passes": true },
-  { "id": "M1-02", "milestone": "M1", "title": "exam JSON 검증기 scripts/validate.mjs", "steps": ["exams/sample.json, exams/demo-fixture.json 통과", "answer가 없는 id를 가리키는 등 깨진 입력은 경로 포함 오류와 exit 1", "[M1-02] 테스트 통과"], "passes": true },
-  { "id": "M1-03", "milestone": "M1", "title": "빌드 scripts/build.mjs → dist/<id>.html 단일 파일", "steps": ["node scripts/build.mjs exams/demo-fixture.json → dist/demo-fixture.html", "file:// 로 열었을 때 네트워크 요청 0건", "[M1-03] 테스트 통과"], "passes": true },
-  { "id": "M1-04", "milestone": "M1", "title": "공통 크롬(타이틀 바, 타이머, 카운터, 툴바, 하단 바) + single 문항 렌더링", "steps": ["[M1-04] visual: ko-04-q1 일치", "타이머·카운터 클릭 시 숨김/표시"], "passes": true },
-  { "id": "M1-05", "milestone": "M1", "title": "응답 선택과 플래그 토글", "steps": ["[M1-05] visual: ko-04-q1-selected-flagged 일치"], "passes": true },
-  { "id": "M1-06", "milestone": "M1", "title": "multiple 문항", "steps": ["[M1-06] visual: ko-05-q2 일치", "select 개수 초과 선택 시 동작이 데모와 같음(초과 선택 허용, 완료 조건은 정확히 select개)"], "passes": true },
-  { "id": "M1-07", "milestone": "M1", "title": "ordering 문항(라벨 left/right)", "steps": ["[M1-07] visual: ko-05-q4, ko-05-q5 일치", "드롭다운 선택이 상태에 저장"], "passes": true },
-  { "id": "M1-08", "milestone": "M1", "title": "matching 문항", "steps": ["[M1-08] visual: ko-05-q6, ko-05-q7 일치"], "passes": true },
-  { "id": "M1-09", "milestone": "M1", "title": "case study 머리말", "steps": ["[M1-09] visual: ko-05-q8, ko-05-q9 일치"], "passes": true },
-  { "id": "M1-10", "milestone": "M1", "title": "English 팝업", "steps": ["[M1-10] visual: ko-04-q1-english 일치", "닫기 X로 닫힘"], "passes": true },
-  { "id": "M1-11", "milestone": "M1", "title": "설명(Comment) 대화상자", "steps": ["[M1-11] visual: ko-04-q1-comment 일치", "저장 시 문항별 보관, 취소 시 변경 폐기"], "passes": true },
-  { "id": "M1-12", "milestone": "M1", "title": "색상 구성표 드롭다운(기본 테마만 동작) + accesskey", "steps": ["목록 12항목(한국어 라벨은 strings.ko.json)", "Alt+N/P/F/M 동작", "[M1-12] 테스트 통과"], "passes": true },
-
-  { "id": "M2-01", "milestone": "M2", "title": "이전/다음 탐색, 마지막 문항 다음 → Review", "steps": ["[M2-01] 테스트 통과"], "passes": false },
-  { "id": "M2-02", "milestone": "M2", "title": "Review 화면과 탭 필터", "steps": ["[M2-02] visual: ko-06-review, ko-06-review-incomplete-tab, ko-06-review-flagged-tab 일치", "플래그 0개면 플래그 탭 숨김"], "passes": false },
-  { "id": "M2-03", "milestone": "M2", "title": "유형별 완료 판정(미완료 수)", "steps": ["[M2-03] 테스트: 5유형의 완료/미완료 경계값"], "passes": false },
-  { "id": "M2-04", "milestone": "M2", "title": "검토로 문항 이동, 검토 화면 복귀, 모두 검토", "steps": ["[M2-04] visual: ko-06-reviewing-q1 일치", "검토 화면 (S)로 복귀"], "passes": false },
-  { "id": "M2-05", "milestone": "M2", "title": "지침 대화상자", "steps": ["[M2-05] visual: ko-06-instructions 일치"], "passes": false },
-  { "id": "M2-06", "milestone": "M2", "title": "검토 종료 2단계 확인", "steps": ["[M2-06] visual: ko-07-end-review-confirm, ko-07-end-review-confirm2 일치", "미완료 0개일 때 문구 변형"], "passes": false },
-  { "id": "M2-07", "milestone": "M2", "title": "타이머 카운트다운과 시간 종료 시 결과 화면", "steps": ["[M2-07] 테스트 통과"], "passes": false },
-  { "id": "M2-08", "milestone": "M2", "title": "시작 화면(모드 선택)", "steps": ["[M2-08] 테스트: 시험/학습 모드 선택 후 1번 문항 진입"], "passes": false },
-  { "id": "M2-09", "milestone": "M2", "title": "채점과 결과 화면(환산 점수, 합격 여부, 영역별 표)", "steps": ["[M2-09] 테스트: demo-fixture 정답 전체 입력 시 1000점 합격, 무응답 시 100점 불합격, 영역별 정답률 정확"], "passes": false },
-  { "id": "M2-10", "milestone": "M2", "title": "localStorage 자동 저장과 이어하기 대화상자", "steps": ["[M2-10] 테스트: 새로고침 후 이어하기 예/아니오 동작"], "passes": false },
-
-  { "id": "M3-01", "milestone": "M3", "title": "학습 모드: 타이머 숨김, 정답 확인 버튼, 응답 잠금", "steps": ["[M3-01] 테스트 통과"], "passes": false },
-  { "id": "M3-02", "milestone": "M3", "title": "해설 창(정답/내 답/해설, AI 해설·정답 논란 배지, en 펼침)", "steps": ["[M3-02] 테스트: 5유형 모두 정답·내 답 표기"], "passes": false },
-  { "id": "M3-03", "milestone": "M3", "title": "오답 해설(채점 후 검토): 잘못된 탭, 읽기 전용 문항, 해설 자동 열림", "steps": ["[M3-03] 테스트 통과"], "passes": false },
-  { "id": "M3-04", "milestone": "M3", "title": "결과 화면 버튼: 오답 해설, 다시 풀기, 처음으로", "steps": ["[M3-04] 테스트 통과"], "passes": false },
-
-  { "id": "M4-01", "milestone": "M4", "title": "빌드 CLI: 여러 파일·전체 빌드, npm scripts", "steps": ["npm run build -- exams/sample.json, npm run build:all", "[M4-01] 테스트 통과"], "passes": false },
-  { "id": "M4-02", "milestone": "M4", "title": "덤프 변환 스킬 .claude/skills/dump-to-exam/SKILL.md", "steps": ["스펙 7절 절차 포함", "validate 실패 시 수정 루프 명시"], "passes": false },
-  { "id": "M4-03", "milestone": "M4", "title": "README 사용법", "steps": ["캡처 재생성, 빌드, 덤프 변환, 하네스 실행 방법"], "passes": false }
+  {
+    "id": "M1-01",
+    "milestone": "M1",
+    "title": "자산 추출: capture/ → vendor/ (스프라이트, 아이콘, strings.ko.json, strings.en.json)",
+    "steps": [
+      "node scripts/extract-assets.mjs 실행 시 vendor/ 생성",
+      "strings.ko.json에 getMessages의 driverProperties 키가 그대로 존재",
+      "[M1-01] 테스트 통과"
+    ],
+    "passes": true
+  },
+  {
+    "id": "M1-02",
+    "milestone": "M1",
+    "title": "exam JSON 검증기 scripts/validate.mjs",
+    "steps": [
+      "exams/sample.json, exams/demo-fixture.json 통과",
+      "answer가 없는 id를 가리키는 등 깨진 입력은 경로 포함 오류와 exit 1",
+      "[M1-02] 테스트 통과"
+    ],
+    "passes": true
+  },
+  {
+    "id": "M1-03",
+    "milestone": "M1",
+    "title": "빌드 scripts/build.mjs → dist/<id>.html 단일 파일",
+    "steps": [
+      "node scripts/build.mjs exams/demo-fixture.json → dist/demo-fixture.html",
+      "file:// 로 열었을 때 네트워크 요청 0건",
+      "[M1-03] 테스트 통과"
+    ],
+    "passes": true
+  },
+  {
+    "id": "M1-04",
+    "milestone": "M1",
+    "title": "공통 크롬(타이틀 바, 타이머, 카운터, 툴바, 하단 바) + single 문항 렌더링",
+    "steps": [
+      "[M1-04] visual: ko-04-q1 일치",
+      "타이머·카운터 클릭 시 숨김/표시"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-05",
+    "milestone": "M1",
+    "title": "응답 선택과 플래그 토글",
+    "steps": [
+      "[M1-05] visual: ko-04-q1-selected-flagged 일치"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-06",
+    "milestone": "M1",
+    "title": "multiple 문항",
+    "steps": [
+      "[M1-06] visual: ko-05-q2 일치",
+      "select 개수 초과 선택 시 동작이 데모와 같음(초과 선택 허용, 완료 조건은 정확히 select개)"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-07",
+    "milestone": "M1",
+    "title": "ordering 문항(라벨 left/right)",
+    "steps": [
+      "[M1-07] visual: ko-05-q4, ko-05-q5 일치",
+      "드롭다운 선택이 상태에 저장"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-08",
+    "milestone": "M1",
+    "title": "matching 문항",
+    "steps": [
+      "[M1-08] visual: ko-05-q6, ko-05-q7 일치"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-09",
+    "milestone": "M1",
+    "title": "case study 머리말",
+    "steps": [
+      "[M1-09] visual: ko-05-q8, ko-05-q9 일치"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-10",
+    "milestone": "M1",
+    "title": "English 팝업",
+    "steps": [
+      "[M1-10] visual: ko-04-q1-english 일치",
+      "닫기 X로 닫힘"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-11",
+    "milestone": "M1",
+    "title": "설명(Comment) 대화상자",
+    "steps": [
+      "[M1-11] visual: ko-04-q1-comment 일치",
+      "저장 시 문항별 보관, 취소 시 변경 폐기"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M1-12",
+    "milestone": "M1",
+    "title": "색상 구성표 드롭다운(기본 테마만 동작) + accesskey",
+    "steps": [
+      "목록 12항목(한국어 라벨은 strings.ko.json)",
+      "Alt+N/P/F/M 동작",
+      "[M1-12] 테스트 통과"
+    ],
+    "passes": true
+  },
+  {
+    "id": "M2-01",
+    "milestone": "M2",
+    "title": "이전/다음 탐색, 마지막 문항 다음 → Review",
+    "steps": [
+      "[M2-01] 테스트 통과"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-02",
+    "milestone": "M2",
+    "title": "Review 화면과 탭 필터",
+    "steps": [
+      "[M2-02] visual: ko-06-review, ko-06-review-incomplete-tab, ko-06-review-flagged-tab 일치",
+      "플래그 0개면 플래그 탭 숨김"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-03",
+    "milestone": "M2",
+    "title": "유형별 완료 판정(미완료 수)",
+    "steps": [
+      "[M2-03] 테스트: 5유형의 완료/미완료 경계값"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-04",
+    "milestone": "M2",
+    "title": "검토로 문항 이동, 검토 화면 복귀, 모두 검토",
+    "steps": [
+      "[M2-04] visual: ko-06-reviewing-q1 일치",
+      "검토 화면 (S)로 복귀"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-05",
+    "milestone": "M2",
+    "title": "지침 대화상자",
+    "steps": [
+      "[M2-05] visual: ko-06-instructions 일치"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-06",
+    "milestone": "M2",
+    "title": "검토 종료 2단계 확인",
+    "steps": [
+      "[M2-06] visual: ko-07-end-review-confirm, ko-07-end-review-confirm2 일치",
+      "미완료 0개일 때 문구 변형"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-07",
+    "milestone": "M2",
+    "title": "타이머 카운트다운과 시간 종료 시 결과 화면",
+    "steps": [
+      "[M2-07] 테스트 통과"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-08",
+    "milestone": "M2",
+    "title": "시작 화면(모드 선택)",
+    "steps": [
+      "[M2-08] 테스트: 시험/학습 모드 선택 후 1번 문항 진입"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-09",
+    "milestone": "M2",
+    "title": "채점과 결과 화면(환산 점수, 합격 여부, 영역별 표)",
+    "steps": [
+      "[M2-09] 테스트: demo-fixture 정답 전체 입력 시 1000점 합격, 무응답 시 100점 불합격, 영역별 정답률 정확"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M2-10",
+    "milestone": "M2",
+    "title": "localStorage 자동 저장과 이어하기 대화상자",
+    "steps": [
+      "[M2-10] 테스트: 새로고침 후 이어하기 예/아니오 동작"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M3-01",
+    "milestone": "M3",
+    "title": "학습 모드: 타이머 숨김, 정답 확인 버튼, 응답 잠금",
+    "steps": [
+      "[M3-01] 테스트 통과"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M3-02",
+    "milestone": "M3",
+    "title": "해설 창(정답/내 답/해설, AI 해설·정답 논란 배지, en 펼침)",
+    "steps": [
+      "[M3-02] 테스트: 5유형 모두 정답·내 답 표기"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M3-03",
+    "milestone": "M3",
+    "title": "오답 해설(채점 후 검토): 잘못된 탭, 읽기 전용 문항, 해설 자동 열림",
+    "steps": [
+      "[M3-03] 테스트 통과"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M3-04",
+    "milestone": "M3",
+    "title": "결과 화면 버튼: 오답 해설, 다시 풀기, 처음으로",
+    "steps": [
+      "[M3-04] 테스트 통과"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M4-01",
+    "milestone": "M4",
+    "title": "빌드 CLI: 여러 파일·전체 빌드, npm scripts",
+    "steps": [
+      "npm run build -- exams/sample.json, npm run build:all",
+      "[M4-01] 테스트 통과"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M4-02",
+    "milestone": "M4",
+    "title": "덤프 변환 스킬 .claude/skills/dump-to-exam/SKILL.md",
+    "steps": [
+      "스펙 7절 절차 포함",
+      "validate 실패 시 수정 루프 명시"
+    ],
+    "passes": false
+  },
+  {
+    "id": "M4-03",
+    "milestone": "M4",
+    "title": "README 사용법",
+    "steps": [
+      "캡처 재생성, 빌드, 덤프 변환, 하네스 실행 방법"
+    ],
+    "passes": false
+  }
 ]
