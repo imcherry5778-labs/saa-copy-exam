@@ -10,6 +10,7 @@
 .abe-colorSchemeBackgroundColor { color: #FFFFFF !important; background: #4678BE !important; }
 .abe-ExhibitButton, .abe-ItemContentButton { border-color: #006DAA; text-align: center; }
 #abe-TimeRemainingSectionButton.locked { color: #FFFF00; }
+.abe-reviewItemEntry { border-color: #C0C0C0; }
 
 body { margin: 0; }
 #abe-contentPane { top: 79px; bottom: 33px; height: unset; overflow: auto; }
@@ -20,7 +21,15 @@ body { margin: 0; }
 #abe-timerContents, #abe-ItemOrdinalKnown { font-family: Batang, "Noto Sans CJK KR", sans-serif; }
 #abe-toolbar button, #abe-navigationbar button, .ui-selectmenu-text { font-family: Batang, "Noto Sans CJK KR", sans-serif; font-weight: 400; }
 #abe-navigationbar button { font-size: 18.6667px; }
-#abe-contentPane, #abe-contentPane button { font-family: Batang, "Noto Sans CJK KR", sans-serif; font-size: 16px; font-weight: 400; }
+#abe-contentPane, #abe-contentPane .abe-content-root button { font-family: Batang, "Noto Sans CJK KR", sans-serif; font-size: 16px; font-weight: 400; }
+:root {
+  --questiontitle-font-family: "Noto Sans CJK KR", sans-serif;
+  --status-font-family: "Noto Sans CJK KR", sans-serif;
+  --tableheader-font-family: "Noto Sans CJK KR", sans-serif;
+  --tabs-font-family: Arial, "Noto Sans CJK KR", sans-serif;
+}
+.abe-reviewHeading, .abe-reviewScreenTitleFonts, .abe-reviewScreenToolTip { font-family: "Noto Sans CJK KR", sans-serif; }
+button:where(.abe-reviewScreen-2-0 .ui-button) { padding: 0; display: inline-block; position: relative; line-height: 1.4; margin-right: .1em; cursor: pointer; vertical-align: middle; text-align: center; user-select: none; overflow: visible; }
 #abe-contentPane p { margin: 0 0 16px; line-height: 24px; }
 
 /* 색상 구성표 드롭다운(jQuery UI selectmenu 대체) */

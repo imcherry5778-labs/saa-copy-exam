@@ -137,7 +137,7 @@
       "[M2-02] visual: ko-06-review, ko-06-review-incomplete-tab, ko-06-review-flagged-tab 일치",
       "플래그 0개면 플래그 탭 숨김"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": "M2-03",

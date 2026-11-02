@@ -191,3 +191,9 @@
 - `tests/navigation.spec.mjs`에 `[M2-01]` 테스트 2개(이전/다음 이동, 마지막 문항 다음 → Review)를 추가하고 회귀 검사(34/34) 통과 후 `passes: true`로 변경했다.
 - 남은 문제: Review 화면의 본문 표·탭 필터 및 픽셀 일치는 M2-02에서 구현해야 한다.
 - 다음 할 일: M2-02(`Review 화면과 탭 필터`, `ko-06-review`, `ko-06-review-incomplete-tab`, `ko-06-review-flagged-tab` 픽셀 일치)를 진행한다.
+
+## 2026-11-02 M2-02
+- `capture/dom/ko-06-review*.html`과 `startDelivery` 테마 CSS를 근거로 `.abe-reviewScreen-2-0`의 3개 탭(모든 질문/미완료 질문/지정된 플래그), 상단 검토 버튼, 2열 표(Flag/Name/Status), 툴팁 포커스/호버 표시, 플래그 0개일 때 플래그 탭 숨김(`style="display:none"`)을 구현했다.
+- `src/app.css`에 Review용 CJK 글꼴 폴백(`"Noto Sans CJK KR"`), `.abe-reviewItemEntry { border-color: #C0C0C0; }`, `button:where(.abe-reviewScreen-2-0 .ui-button)` 기본 스타일을 추가하여 `ko-06-review`, `ko-06-review-incomplete-tab`, `ko-06-review-flagged-tab` 픽셀 테스트 3개와 `tests/review.spec.mjs` 테스트 2개 및 회귀 검사(39/39)를 모두 통과했다.
+- 남은 문제: Review 화면에서 문항이나 상단 검토 버튼을 클릭했을 때의 검토 대기열 이동 동작은 M2-04~M2-06에서 구현해야 한다.
+- 다음 할 일: M2-03(`유형별 완료 판정(미완료 수)` 경계값 테스트)을 진행한다.
