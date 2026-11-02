@@ -332,7 +332,7 @@
 
   function formatItemAnswer(item, ans) {
     if (item.type === 'single' || item.type === 'multiple') {
-      var arr = Array.isArray(ans) ? ans.filter(Boolean) : [];
+      var arr = Array.isArray(ans) ? ans.filter(Boolean).slice().sort() : [];
       if (arr.length === 0) return '미응답';
       return arr.map(function (id) {
         var opt = null;

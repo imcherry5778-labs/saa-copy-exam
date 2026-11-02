@@ -155,3 +155,184 @@ test('[M3-01] 학습 모드에서 마지막 문항 → Review → 검토 종료 
   await expect(page.locator('#abe-resultCorrect')).toHaveText('1 / 9');
   await expect(page.locator('#abe-resultElapsed')).toHaveCount(0);
 });
+
+test('[M3-02] 해설 창이 5가지 문항 유형(single, multiple, ordering, matching, caseStudy) 모두에서 정답·내 답·해설을 정확히 표시한다', async ({ page }) => {
+  await page.goto(URL);
+
+  // 1) single (q1): 오답 선택 시 '오답입니다', 정답 D, 내 답 A, 한국어 해설 표시
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 0,
+      answers: { q1: ['A'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  const dialog = page.locator('#abe-explanation-dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('#abe-exp-title')).toHaveText('해설');
+  await expect(dialog.locator('#abe-exp-result')).toHaveText('오답입니다');
+  await expect(dialog.locator('#abe-exp-correct')).toHaveText('D. AWS Network Firewall');
+  await expect(dialog.locator('#abe-exp-user')).toHaveText('A. Amazon GuardDuty');
+  await expect(dialog.locator('#abe-exp-ko')).toContainText('AWS Network Firewall은 도메인/URL 필터링과 침입 방지(IPS) 규칙으로');
+
+  // 2) multiple (q2): 정답 선택(역순 ['B', 'A'] 입력도 정렬 표기) 시 '정답입니다', 정답 A/B, 내 답 A/B 표시
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 1,
+      answers: { q2: ['B', 'A'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  await expect(dialog.locator('#abe-exp-result')).toHaveText('정답입니다');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('A. 비즈니스 속도 향상');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('B. 법적 난제 감소');
+  await expect(dialog.locator('#abe-exp-user')).toContainText('A. 비즈니스 속도 향상');
+  await expect(dialog.locator('#abe-exp-user')).toContainText('B. 법적 난제 감소');
+  await expect(dialog.locator('#abe-exp-ko')).toContainText('Marketplace는 조달 절차를 간소화해');
+
+  // 3) ordering (q4: 슬롯 라벨 있음, q5: null 라벨 슬롯 포함): 슬롯별 정답·내 답 나열
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 3,
+      answers: { q4: ['c1', 'c2', 'c5'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  await expect(dialog.locator('#abe-exp-result')).toHaveText('오답입니다');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('단계 1: 기존 DB 인스턴스의 스냅샷을 생성한다.');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('단계 2: 암호화된 스냅샷의 복제본을 생성한다.');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('단계 3: 암호화된 스냅샷에서 DB 인스턴스를 복원한다.');
+  await expect(dialog.locator('#abe-exp-user')).toContainText('단계 3: 암호화된 읽기 전용 복제본에서 DB 인스턴스를 복원한다.');
+
+  // q5 (label이 null인 2번째 슬롯은 '슬롯 2'로 표기)
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 4,
+      answers: { q5: ['c2', 'c1', 'c3'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  await expect(dialog.locator('#abe-exp-result')).toHaveText('정답입니다');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('가장 큰 범위: AWS 리전');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('슬롯 2: 가용 영역');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('가장 작은 범위: 서브넷');
+
+  // 4) matching (q6): prompt별로 정답과 내 답을 나열
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 5,
+      answers: {
+        q6: { p1: 'c1', p2: 'c1', p3: 'c2', p4: 'c2', p5: 'c1' },
+      },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  await expect(dialog.locator('#abe-exp-result')).toHaveText('오답입니다');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('Amazon Forecast: 기계 학습');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('AWS Glue: 분석');
+  await expect(dialog.locator('#abe-exp-user')).toContainText('Amazon Forecast: 분석');
+  await expect(dialog.locator('#abe-exp-ko')).toContainText('Glue(ETL)와 QuickSight(BI)는 분석');
+
+  // 5) caseStudy (q8 multiple, q9 single): 사례 연구 문항에서도 정답·내 답·해설 표시
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 7,
+      answers: { q8: ['A', 'C'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  await expect(dialog.locator('#abe-exp-result')).toHaveText('정답입니다');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('A. 여러 가용 영역에서 Amazon EC2 인스턴스의 자동 스케일링 그룹을 구성한다.');
+  await expect(dialog.locator('#abe-exp-correct')).toContainText('C. Amazon EC2 인스턴스에 대한 로드 밸런싱을 구현한다.');
+  await expect(dialog.locator('#abe-exp-ko')).toContainText('다중 AZ Auto Scaling 그룹과 로드 밸런서를 함께 쓰면');
+});
+
+test('[M3-02] 해설 창에서 AI 해설·정답 논란 배지와 English 해설 토글 및 닫기 버튼이 동작한다', async ({ page }) => {
+  const sampleUrl = 'file://' + resolve('dist/sample.html') + '?test=1';
+  await page.goto(sampleUrl);
+
+  // sample.json의 s6(index 5)은 explanationSource: "ai" 및 disputed: true를 모두 가진다
+  await page.evaluate(() => {
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 5,
+      answers: { s6: ['B'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+
+  const dialog = page.locator('#abe-explanation-dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('.abe-exp-badge-ai')).toHaveText('AI 해설');
+  await expect(dialog.locator('.abe-exp-badge-disputed')).toHaveText('정답 논란');
+
+  // English 토글로 영어 해설 펼침/접힘 확인
+  const enToggle = dialog.locator('#abe-exp-en-toggle');
+  await expect(enToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(dialog.locator('#abe-exp-en')).toHaveCount(0);
+
+  await enToggle.click();
+  await expect(dialog.locator('#abe-exp-en-toggle')).toHaveAttribute('aria-expanded', 'true');
+  await expect(dialog.locator('#abe-exp-en')).toBeVisible();
+  await expect(dialog.locator('#abe-exp-en')).toContainText('CloudFront caches content at edge locations');
+
+  await dialog.locator('#abe-exp-en-toggle').click();
+  await expect(dialog.locator('#abe-exp-en-toggle')).toHaveAttribute('aria-expanded', 'false');
+  await expect(dialog.locator('#abe-exp-en')).toHaveCount(0);
+
+  // explanationSource가 "dump"이고 disputed가 없으면 두 배지 모두 표시되지 않는다
+  await page.evaluate(() => {
+    window.__EXAM__.items[0].explanationSource = 'dump';
+    delete window.__EXAM__.items[0].disputed;
+    window.__exam.load({
+      mode: 'study',
+      phase: 'item',
+      index: 0,
+      answers: { s1: ['B'] },
+      flags: {},
+      comments: {},
+      checked: {},
+    });
+  });
+  await page.getByRole('button', { name: '정답 확인 (K)' }).click();
+  await expect(dialog.locator('.abe-exp-badge-ai')).toHaveCount(0);
+  await expect(dialog.locator('.abe-exp-badge-disputed')).toHaveCount(0);
+
+  // 닫기 X 버튼(#abe-exp-close)으로 닫힘
+  await dialog.locator('#abe-exp-close').click();
+  await expect(dialog).toHaveCount(0);
+});
