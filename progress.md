@@ -151,3 +151,8 @@
 - `[M1-11]` 테스트 3개(픽셀 1 + comment.spec 2)와 회귀 검사(passing)가 통과해 passes를 true로 바꿨다.
 - 남은 문제: M1-08은 BLOCKED, M1-09는 QUESTION 대기. 기준 하단 오른쪽의 리사이즈 그립 아이콘은 아직 그리지 않았다(허용 오차 이내).
 - 다음 할 일: M1-08/M1-09 결정 대기. 둘이 풀리면 `scripts/check.sh M1` 게이트를 확인하고 M2-01로 간다.
+
+## 2026-11-02 M1 (진행 불가 확인)
+- `scripts/check.sh passing` 26/26 통과(회귀 없음). M1에서 `passes:false`로 남은 항목은 M1-08, M1-09 둘뿐이다.
+- M1-08은 3회 시도 후 BLOCKED 상태라 재도전하지 않았다. M1-09는 탭 줄 유무에 대한 QUESTION이 아직 답변되지 않아 추측으로 구현하지 않았다. 코드 변경 없음.
+- 다음 할 일: 사람이 M1-09 QUESTION(보기별 `tab` 필드 추가 vs `caseStudy` 규칙 + q9 허용 오차)을 결정한다. M1-08은 `capture/dom/05-q6.html`의 p/span 구조를 그대로 복제하는 방식으로 재도전한다.
