@@ -1,10 +1,10 @@
 node_modules/
 # Pearson demo captures and dump-derived data stay local
-capture/
+/capture/
 exams/*.json
 !exams/sample.json
-dist/
+/dist/
 .tmp/
-vendor/
+/vendor/
 test-results/
 playwright-report/
