@@ -8,7 +8,7 @@
   app.setAttribute('data-exam-id', exam.id);
 
   var state = {
-    phase: 'item', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
+    phase: 'start', mode: 'exam', index: 0, fromReview: false, reviewTab: 'All', reviewList: null,
     answers: {}, flags: {}, comments: {}, checked: {},
     remainingSec: exam.durationMinutes * 60, timerHidden: false, counterHidden: false, english: false, commentOpen: false, schemeOpen: false, instructionsOpen: false, endReviewStep: 0,
   };
@@ -42,7 +42,7 @@
     var min = Math.floor(left / 60), sec = left % 60;
     var timerName = label('Timing.Property.HideTimer.value') + ' 남은 시간 ' + min + ' 분, ' + sec + ' 초';
     var counter = '문제 ' + (state.index + 1) + ' / ' + total;
-    var timerHtml = state.mode === 'study' ? '' :
+    var timerHtml = (state.mode === 'study' || state.phase === 'start') ? '' :
       '<div id="abe-timer" role="timer"><button id="abe-TimeRemainingSectionButton" role="button">' +
       '<span id="abe-timerPlaceholder"></span><span id="accessibleTimerText" class="sr-only">' + esc(timerName) + '</span>' +
       '<div id="abe-timerContents" class="rc-fonts-Message' + (state.timerHidden ? ' off' : '') + '" aria-hidden="true">' +
@@ -73,6 +73,12 @@
   }
 
   function toolBar() {
+    if (state.phase === 'start') {
+      return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
+        '<span id="Tool_bar" style="display:none">Tool bar</span>' +
+        '<div id="abe-toolbar-tools"></div>' +
+        '<div id="abe-toolbar-flags">' + colorSchemes() + '</div></div>';
+    }
     if (state.phase === 'review') {
       return '<div id="abe-toolbar" class="Secondary" role="region" aria-labelledby="Tool_bar" style="display:table;height:30px">' +
         '<span id="Tool_bar" style="display:none">Tool bar</span>' +
@@ -91,6 +97,12 @@
   }
 
   function navBar() {
+    if (state.phase === 'start') {
+      var startNext = '<div class="abe-inline-button-right abe-icon-right"><button id="abe-NextButton" class="rc-fonts-Normal" data-accesskey="N" accesskey="N">' +
+        keyLabel(label('UserInterface.Buttons.Button.Next.label')) + '</button></div>';
+      return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish"></div>' +
+        '<div id="abe-navigation-jump">' + startNext + '</div></div>';
+    }
     if (state.phase === 'review') {
       return '<div id="abe-navigationbar" class="Primary" role="navigation"><div id="abe-navigation-help-finish">' +
         '<div class="abe-inline-button-left abe-icon-left" style="padding-left:5px"><button id="abe-EndReviewButton" class="rc-fonts-Normal" data-accesskey="E" accesskey="E">' +
@@ -350,8 +362,29 @@
       '</div></div></div><div class="ui-widget-overlay ui-front" style="z-index: 100;"></div>';
   }
 
+  function startBody() {
+    var examLabel = '시험 모드 (' + exam.durationMinutes + '분, 타이머)';
+    var studyLabel = '학습 모드 (타이머 없음, 문항별 정답 확인)';
+    return '<div id="abe-startScreen" class="abe-mat-html">' +
+      '<h1><p style="font-size:16px"><b>' + esc(exam.title) + '</b></p></h1>' +
+      '<p>문항 수: ' + exam.items.length + '문항 · 시험 시간: ' + exam.durationMinutes + '분</p>' +
+      '<div class="abe-opt">' +
+      '<div class="abe-opt-input"><label class="abe-parentLabel"><input type="radio" name="exam-mode" id="mode-exam" value="exam"' + (state.mode === 'exam' ? ' checked' : '') + '></label></div>' +
+      '<label class="abe-opt-text" for="mode-exam"><div class="abe-mat-html">' + esc(examLabel) + '</div></label></div>' +
+      '<div class="abe-opt">' +
+      '<div class="abe-opt-input"><label class="abe-parentLabel"><input type="radio" name="exam-mode" id="mode-study" value="study"' + (state.mode === 'study' ? ' checked' : '') + '></label></div>' +
+      '<label class="abe-opt-text" for="mode-study"><div class="abe-mat-html">' + esc(studyLabel) + '</div></label></div>' +
+      '</div>';
+  }
+
   function render() {
     var item = exam.items[state.index];
+    if (state.phase === 'start') {
+      app.innerHTML = titleBar(item) + toolBar() +
+        '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
+        '<div class="abe-content-root">' + startBody() + '</div></div></div>' + navBar();
+      return;
+    }
     if (state.phase === 'review') {
       app.innerHTML = titleBar(item) + toolBar() +
         '<div id="abe-contentPane" class="Content rc-fonts-ItemText" dir="ltr" tabindex="-1" role="main" style="background-color: rgb(242, 243, 245);"><div id="abe-readMe" class="contentPaneLanguageWrapper dynamicContent heightRoot" dir="ltr" tabindex="0">' +
@@ -528,6 +561,15 @@
     }
     else if (t.id === 'abe-eng-close') { state.english = false; render(); }
     else if (t.id === 'abe-NextButton') {
+      if (state.phase === 'start') {
+        state.phase = 'item';
+        state.fromReview = false;
+        state.reviewList = null;
+        state.remainingSec = exam.durationMinutes * 60;
+        state.startedAt = Date.now();
+        go(0);
+        return;
+      }
       if (state.reviewList) {
         var pos = state.reviewList.indexOf(state.index);
         if (pos >= 0 && pos < state.reviewList.length - 1) {
@@ -565,6 +607,10 @@
 
   app.addEventListener('change', function (e) {
     var t = e.target;
+    if (t && t.tagName === 'INPUT' && t.name === 'exam-mode') {
+      state.mode = t.value;
+      return;
+    }
     if (t && t.tagName === 'SELECT' && t.hasAttribute('data-slot')) {
       var it = exam.items[state.index];
       if (it.type === 'matching') {
